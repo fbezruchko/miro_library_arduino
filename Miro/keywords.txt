@@ -1,0 +1,43 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Miro	        KEYWORD1	Miro Robot Class
+Led 	        KEYWORD1	Miro Robot Led Class
+Ldr             KEYWORD1	Miro Robot LDR Class
+Usonic 	        KEYWORD1	Miro Robot Usonic Class
+Chassis 	    KEYWORD1	Miro Robot Chassis Class
+Device 	        KEYWORD1	Miro Robot Device Class
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+Init                KEYWORD2    Init Device object or Miro object
+Sync                KEYWORD2    Sync Device object or Miro object
+On                  KEYWORD2    Swith On Device
+Off                 KEYWORD2    Swith Off Device
+MoveDist            KEYWORD2    Move distance (meters)
+RotateAng           KEYWORD2    Rotate angle
+getAngSpeedRad      KEYWORD2    Rotate angle (radians)
+getAngSpeed         KEYWORD2    Get angular speed
+getLinSpeed         KEYWORD2    Get linear speed
+getPath             KEYWORD2    Get path length
+attachDevice        KEYWORD2    Attach Device
+dettachDevice       KEYWORD2    Dettach Device
+getVoltage          KEYWORD2    Get voltage from sensor
+getValue            KEYWORD2    Get value from sensor
+getMesCount         KEYWORD2    Get count of mesure
+getDist             KEYWORD2    Get distance (us sensor)
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+LEFT            LITERAL1
+RIGHT           LITERAL1
+MAX_DEVICES     LITERAL1
