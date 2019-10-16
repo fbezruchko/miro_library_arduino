@@ -1,5 +1,7 @@
 #include "Device.h"
 
+namespace miro {
+
 class Ldr : virtual public Device {
 public:
 	void Init(byte pin);
@@ -9,3 +11,5 @@ public:
 private:
 	byte pin;
 };
+
+} //end namespace

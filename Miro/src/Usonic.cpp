@@ -6,6 +6,10 @@
 #define NUM 0
 #define TYPE 1
 
+#define MAX_DIST 4000 //4 метра
+
+using namespace miro;
+
 void Usonic::On(unsigned int max_dist)
 {
 	this->_isOn = true;

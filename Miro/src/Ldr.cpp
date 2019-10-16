@@ -1,5 +1,10 @@
 #include "Ldr.h"
 
+#define NUM 0
+#define TYPE 1
+
+using namespace miro;
+
 void Ldr::Init(byte pin)
 {
 	this->pins_count = 1;

@@ -2,6 +2,8 @@
 #include "Protocol.h"
 #include "misp.h"
 
+using namespace miro;
+
 int _misp_get_ident(struct tPacket *packet)
 {
 	if (packet == nullptr) return -1;

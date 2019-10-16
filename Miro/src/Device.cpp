@@ -1,16 +1,33 @@
 #include "Device.h"
 
+using namespace miro;
+
 void Device::Sync()
 {
 	return;
 }
 
-byte Device::GetParamCount()
+void Device::SetParam(byte pnum, byte *pvalue)
 {
-    return this->_param_count;
+	return;
+}
+
+void Device::GetParam(byte pnum, byte *pvalue)
+{
+	return;
+}
+
+byte Device::GetPinsCount()
+{
+	return 0;
 }
 
 char* Device::GetName()
 {
-    return this->_dev_name;
+	return 0;
+}
+
+byte Device::GetParamCount()
+{
+	return 0;
 }

@@ -1,11 +1,12 @@
 #include "Device.h"
 
-#define MAX_DIST 4000 //4 метра
+namespace miro {
 
 class Usonic : virtual public Device {
 public:
 	void Sync();
 	void Init(byte trig_pin, byte echo_pin);
+	
 	unsigned int getMesCount();
 	int getDist(unsigned int max_dist);
 	void On();
@@ -18,3 +19,5 @@ private:
 	unsigned int _dist;
 	unsigned int _max_dist;
 };
+
+} //end namespace

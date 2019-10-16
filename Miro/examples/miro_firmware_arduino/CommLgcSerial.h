@@ -1,30 +1,25 @@
 #ifndef commLgcserial_h
 #define commLgcserial_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-    #include "Arduino.h"
-#else
-    #include "WProgram.h"
-#endif
+#define RXBUFFERSIZE 64
 
-#define RXBUFFERSIZE 128
-
-#include <string.h> 
-//#include <stdio.h>
-#include <stdlib.h>
+//const char msgs_error[][8]={"MIRO: Unknown command!", "ERROR", ">>>NO ARGUMENTS", ">>>UNKNOWN DEVICE INDEX", ">>>NO PARAMETERS", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER VALUE"};
 
 class CommLgcSerial {
-public:
-    void handle();
-    void begin();
+  public:
+  void handle();
+  void begin();
 
-private:
+  private:
     int parse(char *str);
 
     int miroget(char *str);
     int miroset(char *str);
+    
     int mirodevtable(char *str);
+    int mirocalibwheel(char *str);
+    int mirowheeltable(char * str);
+    int miromode(char * str);
 };
-
 
 #endif

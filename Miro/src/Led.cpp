@@ -3,6 +3,12 @@
 #define NUM 0
 #define TYPE 1
 
+#define PNUM_VALUE 0
+
+using namespace miro;
+
+const char _const_dev_name[] = "LED";
+
 void Led::Init(byte pin)
 {
 	this->pins_count = 1;
@@ -16,25 +22,30 @@ void Led::Init(byte pin)
 void Led::On(byte value)
 {
 	analogWrite(this->pins[0][NUM], value);
+	this->led_value = value;
 }
 
 void Led::On()
 {
 	digitalWrite(this->pins[0][NUM], HIGH);
+	this->led_value = 255;
 }
 
 void Led::Off()
 {
 	digitalWrite(this->pins[0][NUM], LOW);
+	this->led_value = 0;
 }
 
 void Led::SetParam(byte pnum, float pvalue)
 {
-    if (pnum == LED_VALUE) analogWrite(this->pins[0][NUM], pvalue);
+    if (pnum == PNUM_VALUE) {
+		analogWrite(this->pins[0][NUM], pvalue);
+		this->led_value = pvalue;
+	}
 }
 
 void Led::GetParam(byte pnum, byte *pvalue)
 {
-    if (pnum == LED_VALUE)  *pvalue = this->led_value;
+    if (pnum == PNUM_VALUE)  *pvalue = this->led_value;
 }
-

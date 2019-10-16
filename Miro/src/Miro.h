@@ -4,13 +4,10 @@
 #include "Chassis.h"
 #include "Device.h"
 
-//char MIRO_VERSION[] = "v1.0.0";
+const char MIRO_VERSION[] = "v1.0.0";
+#define MIRO_MAX_DEVICES 16	//Максимальное число устройств, которые можно подключить к роботу.
 
-#define MAX_DEVICES 16	//Максимальное число устройств, которые можно подключить к роботу.
-#define ROBOT_DIAMETER (0.16) //ђасстояние между левым и правым колесом (метров)
-
-#define LEFT 0
-#define RIGHT 1
+namespace miro {
 
 class Miro {
 public:
@@ -26,13 +23,24 @@ public:
 	ang_speed - угловая скорость робота (град/сек),
 	dist - длина пути, которую нужно преодолеть роботу (м),
 	*/
-	int MoveDist(float lin_speed, float ang_speed, float dist); //Движение робота с заданными линейной и угловыми скоростями
+	int MoveDist(float lin_speed, float ang_speed, float dist, bool en_break); //Движение робота с заданными линейной и угловыми скоростями
+	
+	/*движение робота.
+	lin_speed - линейная скорость робота (м/с),
+	ang_speed - угловая скорость робота (град/сек),
+	*/
+	int Move(float lin_speed, float ang_speed); //Движение робота с заданными линейной и угловыми скоростями
 
 	/*поворот робота на месте.
 	ang - угол поворота,
 	ang_speed - угловая скорость поворота (град/сек),
 	*/
-	int RotateAng(float ang_speed, float ang);
+	int RotateAng(float ang_speed, float ang, bool en_break);
+	
+	/*поворот робота на месте.
+	ang_speed - угловая скорость поворота (град/сек),
+	*/
+	int Rotate(float ang_speed);
 
 	/*возвращает угловую скороть шасси (рад/сек).*/
 	float getAngSpeedRad();
@@ -52,19 +60,15 @@ public:
 	int dettachDevice(Device *dev);
 	int dettachDevice(byte DeviceIndex);
 
-    //char* GetDeviceNameByIndex(byte DeviceIndex);
     Device* GetDeviceByIndex(byte DeviceIndex);
-    //byte GetParamCountByDeviceIndex(byte DeviceIndex);
     byte GetDeviceCount();
-
-	//char* version = MIRO_VERSION;
-
-    //Device* devices[MAX_DEVICES];
 	
 private:
 
-	Device* devices[MAX_DEVICES];
+	Device* devices[MIRO_MAX_DEVICES];
 	byte _device_count;
 };
+
+} // end namespace
 
 #endif

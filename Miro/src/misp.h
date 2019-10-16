@@ -3,6 +3,8 @@
 
 #include "Protocol.h"
 
+namespace miro {
+
 #define MiSP_GET_IDENT 100 //Запрос версии прошивки (->MIRO)
 #define MiSP_IDENT 101 //Содержит версию прошивки (MIRO->)
 #define MiSP_MOVE 111 //Команда на движение робота (->MIRO)
@@ -76,5 +78,7 @@ unsigned int _rx_get_4u16(struct tPacket *packet);
 #define _rx_get_lightsense_value _rx_get_2f32
 #define _rx_get_led _rx_get_1b8
 #define _rx_get_led_value _rx_get_2b8
+
+}
 
 #endif

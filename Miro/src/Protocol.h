@@ -7,6 +7,8 @@
 #define MAX_PAYLOAD 17 //Размер полезной нагрузки, байт
 #define PROTOCOL_MAX_PACKET (MAX_PAYLOAD + 5)
 
+namespace miro {
+
 struct tPacket {
 	char _header[2] = { '$', 'M' }; //преамбула
 	char _dir = FROM_HOST; //байт направления пакета: ">" - в хост от робота, "<" - в робота от хоста
@@ -22,5 +24,7 @@ bool _protocol_crc_check(struct tPacket *packet);
 int _protocol_p2d(struct tPacket *packet, unsigned char *data);
 
 int _protocol_d2p(struct tPacket *packet, unsigned char *data);
+
+} // end namespace
 
 #endif

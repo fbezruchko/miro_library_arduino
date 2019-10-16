@@ -7,11 +7,13 @@
 #######################################
 
 Miro	        KEYWORD1	Miro Robot Class
-Led 	        KEYWORD1	Miro Robot Led Class
-Ldr             KEYWORD1	Miro Robot LDR Class
-Usonic 	        KEYWORD1	Miro Robot Usonic Class
-Chassis 	    KEYWORD1	Miro Robot Chassis Class
-Device 	        KEYWORD1	Miro Robot Device Class
+MIROLed 	        KEYWORD1	Miro Robot Led Class
+MIROLdr             KEYWORD1	Miro Robot LDR Class
+MIROLine			KEYWORD1	Miro Robot Line sensor Class
+MIROUsonic 	        KEYWORD1	Miro Robot Usonic Class
+MIROServo 	        KEYWORD1	Miro Robot Servo Class
+Chassis 	    KEYWORD1	Miro Robot chassis Class
+Device 	        KEYWORD1	Miro Robot device Class
 
 #######################################
 # Methods and Functions (KEYWORD2)

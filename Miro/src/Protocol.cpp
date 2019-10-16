@@ -1,6 +1,8 @@
 #include "Protocol.h"
 
-int _protocol_crc_calc(struct tPacket *packet)
+//using namespace miro;
+
+int _protocol_crc_calc(struct miro::tPacket *packet)
 {
 	if (packet == nullptr) return -1;
 	unsigned char crc = *(((unsigned char*)packet) + 3);
@@ -14,7 +16,7 @@ int _protocol_crc_calc(struct tPacket *packet)
 	return 0;
 }
 
-bool _protocol_crc_check(struct tPacket *packet)
+bool _protocol_crc_check(struct miro::tPacket *packet)
 {
 	if (packet == nullptr) return false;
 	unsigned char crc = *(((unsigned char*)packet) + 3);
@@ -28,7 +30,7 @@ bool _protocol_crc_check(struct tPacket *packet)
 	return false;
 }
 
-int _protocol_p2d(struct tPacket *packet, unsigned char *data)
+int _protocol_p2d(struct miro::tPacket *packet, unsigned char *data)
 {
 	if ((packet == nullptr) || (data == nullptr)) return -1;
 	*data = '$';
@@ -45,7 +47,7 @@ int _protocol_p2d(struct tPacket *packet, unsigned char *data)
 	return 0;
 }
 
-int _protocol_d2p(struct tPacket *packet, unsigned char *data)
+int _protocol_d2p(struct miro::tPacket *packet, unsigned char *data)
 {
 	if ((packet == nullptr) || (data == nullptr)) return -1;
 
@@ -65,7 +67,7 @@ int _protocol_d2p(struct tPacket *packet, unsigned char *data)
 
 	packet->_crc = *(data + 4 + packet->_size);
 
-	if (!_protocol_crc_check(packet)) return -4;
+	if (!miro::_protocol_crc_check(packet)) return -4;
 
 	return 0; //Возвращает номер команды
 }

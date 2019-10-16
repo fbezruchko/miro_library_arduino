@@ -3,75 +3,92 @@
 
 #include "chassis_config.h"
 
+namespace miro {
+
+#define MB_PI (3.14159265)
+#define MB_PI2ANG (57.2957795)
+
 class Chassis {
 public:
-	/*Инициализация (назначение пинов, их режимов, прерываний и пр. - функция должна вызываться в setup()*/
+	/*Init pins, modes, irq's - must call in setup()*/
 	void Init();
 
     void printWheelTable();
 
 	void Sync();
 
-	/*Измерить и вычислить напряжеине батареи*/
+	/*Battery voltage measurement*/
 	float getVoltage();
 
-	/*Калибровка двигателей. В процессе калибровки определяется максимальная и минимальная скорость вращения двигателей.
-	При калибровке в память EEPROM заносится таблица вида "<угловая скорость колеса> - <напряжение на моторе>".
-	Калибровку необходимо проводить один раз на новом роботе с полностью заряженной и отбаллансированной батареей.
-	Во вроемя процедуры калибровки двигатели робота вращаются, поэтому робот необходимо закрепить на подставке.
-	Данные полученные в ходе калибровки используются во многих функциях для установки начальных значений ШИМ двигателей,
-	в зависимости от требуемой угловой скосроти колеса.
+	/*
+	Calibration of motors. The calibration process determines the maximum and minimum motor speeds and break delays.
+	During calibration, a table of the form "<wheel angular speed> - <motor voltage> - <break delay>" is entered into the EEPROM memory.
+	Calibration must be done once on a new robot with a fully charged and balanced battery.
+	During the calibration procedure, the robot motors rotate, so the robot must be mounted on a stand.
+	The data obtained during calibration are used in many functions to set the initial values ​​of PWM motors,
+	depending on the required angular speed of the wheel.
 	*/
-	void wheelCalibrate();
+	void wheelCalibrate(byte wheel);
 
-	/*Сихронное вращение колес. ВАЖНЕЙШАЯ ФУНКЦИЯ!
-	speed[] - массив-заданние угловых скоростей (град/сек) для каждого колеса
-	ang[] - массив-задание углов поворота каждого колеса (град)
+	/*
+	Synchronous rotation of the wheels. IMPORTANT FUNCTION!
+	speed [] - array-setting the angular speeds (deg / sec) for each wheel
+	ang [] - array-setting the rotation angles of each wheel (degree)
 	*/
-	int wheelRotateAng(float *speed, float *ang);
+	int wheelRotateAng(float *speed, float *ang, bool en_break);
 
-	/*Вращение колес заданной скоростью (без ограничения по времени или углу - пока колеса не будут явно остановлены).
-	Возврат из функции произойдет незамедлительно. Процесс управления вращеинем колеса будет выполняться в функции Sync().
+	/*
+	Wheel rotation at a given speed (without time or angle limit - until the wheels are clearly stopped).
+	The return from the function will happen immediately. The wheel spin control process will be performed in the Sync () function.
 	*/
-	int wheelRotate(float *speed); //Нормально не реализовано
+	int wheelRotate(float *speed); //TO-DO
 
-	/*Возвращает значение счетчика тахометра выбранного мотор-колеса*/
+	/*Returns the odometry counter value of the selected motor (wheel)*/
 	unsigned long wheelGetTachom(byte wheel);
 
-	/*Сброс значения счетчика тахометра выбранного мотор - колеса*/
+	/*Reset odometry counter value of the selected motor (wheel)*/
 	void wheelResetTachom(byte wheel);
 
-	/*Вовзращает значение угловой скорости выбранного колеса (град/сек)*/
-	float wheelGetAngSpeed(byte wheel);
+	/*Returns the value of the angular velocity of the selected wheel (deg / sec)*/
+	float wheelGetAngSpeed(byte wheel) { return (this->_wheelAngSpeed[wheel]); }
 
-	/*Вовзращает значение угловой скорости выбранного колеса (рад/сек)*/
-	float wheelGetAngSpeedRad(byte wheel);
+	/*Returns the value of the angular velocity of the selected wheel (rad / sec)*/
+	float wheelGetAngSpeedRad(byte wheel) { return this->_wheelAngSpeed[wheel] / MB_PI2ANG; }
 
-	/*Возвращает True если колесо вращается и False если не вращается*/
-	bool wheelIsMoving(byte wheel);
+	/*Returns True if the wheel is spinning and False if it is not spinning*/
+	bool wheelIsMoving(byte wheel) {return this->_wheel_move[wheel];}
 
-	/*Возвращает длину пути, пройденного выбранным колесом (метров)*/
+	/*Returns the length of the path traveled by the selected wheel (meters)*/
 	float wheelGetPath(byte wheel);
 
-	/*Возвращает линейную скорость оси колеса (м/с)*/
-	float wheelGetLinSpeed(byte wheel);
+	/*Returns the linear velocity of the wheel axis (m / s)*/
+	float wheelGetLinSpeed(byte wheel) { return MB_PI * this->_wheelAngSpeed[wheel] * WHEEL_RADIUS / 180.0; }
+	
+	byte getWheelCount() {return WHEEL_COUNT;}
+	
+	float getMaxLinSpeed();
+	float getOptLinSpeed();
+	float getMinLinSpeed();
 
-	/*Вращение ОДНОГО колеса.
-	speed - заданние угловой скорости (град/сек) для колеса
-	ang - задание угла поворота колеса (град)
-	wheel - номер колеса
+	/*
+	Rotation of ONE wheel.
+	speed - set angular speed (deg / sec) for the wheel
+	ang - setting the angle of rotation of the wheel (degrees)
+	wheel - wheel number
 	*/
 	int wheelRotateAng_one(float speed, float ang, byte wheel);
 
 private:
 	void _wheel_rotate(byte wheel);
-	void _wheel_rotate_sync();
-	int _eepromReadWheelTable(float *table);
-	int _eepromWriteWheelTable(float *table);
+	void _wheel_rotate_sync(bool en_break);
+	
+	int _eepromReadWheelTable(byte wheel, float *table);
+	int _eepromWriteWheelTable(byte wheel, float *table);
+	
 	int _wheelGetU(float ang_speed, int wheel, float volts);
+	int _wheelGetBDelay(float ang_speed, int wheel);
 
-	float _calib_wheel_table[WHEEL_COUNT][3
-][WHEEL_TABLE_SIZE];
+	float _calib_wheel_table[WHEEL_COUNT][3][WHEEL_TABLE_SIZE];
 	char _wheelDir[WHEEL_COUNT];
 	float _wheelAngSpeed[WHEEL_COUNT];
 
@@ -80,10 +97,12 @@ private:
 
 	unsigned long _wheelLastSync[WHEEL_COUNT];
 
-	float _vbat; //Напряжение батареи робота
+	float _vbat; //Battery volgage
 
 	bool _wheel_sync_move;
 	bool _wheel_move[WHEEL_COUNT];
 };
+
+} // end namespace
 
 #endif

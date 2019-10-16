@@ -3,6 +3,11 @@
 #define MB_PI (3.14159265)
 #define MB_PI2ANG (57.2957795)
 
+#define LEFT 0
+#define RIGHT 1
+
+using namespace miro;
+
 void Miro::Init()
 {
 	this->chassis.Init();
@@ -18,7 +23,7 @@ void Miro::Sync()
 	}
 }
 
-int Miro::MoveDist(float lin_speed, float ang_speed, float dist)
+int Miro::MoveDist(float lin_speed, float ang_speed, float dist, bool en_break)
 {
 	float _wheelSetAngSpeed[WHEEL_COUNT];
 	_wheelSetAngSpeed[LEFT] = MB_PI2ANG * (lin_speed - (ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
@@ -27,24 +32,38 @@ int Miro::MoveDist(float lin_speed, float ang_speed, float dist)
 	float _wheelSetAng[WHEEL_COUNT];
 	_wheelSetAng[RIGHT] = _wheelSetAngSpeed[RIGHT] * dist / lin_speed;
 	_wheelSetAng[LEFT] = _wheelSetAngSpeed[LEFT] * dist / lin_speed;
+	
+	// Serial.print(F("L speed: "));
+	// Serial.println(_wheelSetAngSpeed[LEFT]);
+	// Serial.print(F("L angle: "));
+	// Serial.println(_wheelSetAng[LEFT]);
+	// Serial.print(F("R speed: "));
+	// Serial.println(_wheelSetAngSpeed[RIGHT]);
+	// Serial.print(F("R angle: "));
+	// Serial.println(_wheelSetAng[RIGHT]);
+	// Serial.println();
 
-	/*
-	Serial.print("L speed: ");
-	Serial.println(_wheelSetAngSpeed[LEFT]);
-	Serial.print("L angle: ");
-	Serial.println(_wheelSetAng[LEFT]);
-	Serial.print("R speed: ");
-	Serial.println(_wheelSetAngSpeed[RIGHT]);
-	Serial.print("R angle: ");
-	Serial.println(_wheelSetAng[RIGHT]);
-	Serial.println();
-	*/
-
-	int result = this->chassis.wheelRotateAng(_wheelSetAngSpeed, _wheelSetAng);
+	int result = this->chassis.wheelRotateAng(_wheelSetAngSpeed, _wheelSetAng, en_break);
 	return result;
 }
 
-int Miro::RotateAng(float ang_speed, float ang)
+int Miro::Move(float lin_speed, float ang_speed)
+{
+	float _wheelSetAngSpeed[WHEEL_COUNT];
+	_wheelSetAngSpeed[LEFT] = MB_PI2ANG * (lin_speed - (ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
+	_wheelSetAngSpeed[RIGHT] = MB_PI2ANG * (lin_speed + (ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
+	
+	// Serial.print(F("L speed: "));
+	// Serial.println(_wheelSetAng[LEFT]);
+	// Serial.print(F("R speed: "));
+	// Serial.println(_wheelSetAngSpeed[RIGHT]);
+	// Serial.println();
+
+	int result = this->chassis.wheelRotate(_wheelSetAngSpeed);
+	return result;
+}
+
+int Miro::RotateAng(float ang_speed, float ang, bool en_break)
 {
 	float _wheelSetAngSpeed[WHEEL_COUNT];
 	_wheelSetAngSpeed[LEFT] = -MB_PI2ANG * ((ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
@@ -55,19 +74,33 @@ int Miro::RotateAng(float ang_speed, float ang)
 	_wheelSetAng[LEFT] = (ROBOT_DIAMETER * ang) / (2.0 * WHEEL_RADIUS);
 	//this->_wheelSetAng[LEFT] = (360.0 * ROBOT_DIAMETER * ang) / (2.0 * MB_PI2ANG * 2.0 * MB_PI * WHEEL_RADIUS);
 
-	/*
-	Serial.print("L speed: ");
+	Serial.print(F("L speed: "));
 	Serial.println(_wheelSetAngSpeed[LEFT]);
-	Serial.print("L angle: ");
+	Serial.print(F("L angle: "));
 	Serial.println(_wheelSetAng[LEFT]);
-	Serial.print("R speed: ");
+	Serial.print(F("R speed: "));
 	Serial.println(_wheelSetAngSpeed[RIGHT]);
-	Serial.print("R angle: ");
+	Serial.print(F("R angle: "));
 	Serial.println(_wheelSetAng[RIGHT]);
 	Serial.println();
-	*/
 
-	int result = this->chassis.wheelRotateAng(_wheelSetAngSpeed, _wheelSetAng);
+	int result = this->chassis.wheelRotateAng(_wheelSetAngSpeed, _wheelSetAng, en_break);
+	return result;
+}
+
+int Miro::Rotate(float ang_speed)
+{
+	float _wheelSetAngSpeed[WHEEL_COUNT];
+	_wheelSetAngSpeed[LEFT] = -MB_PI2ANG * ((ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
+	_wheelSetAngSpeed[RIGHT] = MB_PI2ANG * ((ROBOT_DIAMETER * ang_speed / (2 * MB_PI2ANG))) / WHEEL_RADIUS;
+
+	Serial.print(F("L speed: "));
+	Serial.println(_wheelSetAngSpeed[LEFT]);
+	Serial.print(F("R speed: "));
+	Serial.println(_wheelSetAngSpeed[RIGHT]);
+	Serial.println();
+
+	int result = this->chassis.wheelRotate(_wheelSetAngSpeed);
 	return result;
 }
 
@@ -78,7 +111,7 @@ float Miro::getAngSpeedRad()
 
 float Miro::getAngSpeed()
 {
-	return ((this->chassis.wheelGetLinSpeed(RIGHT) - this->chassis.wheelGetLinSpeed(LEFT)) * MB_PI2ANG / ROBOT_DIAMETER);
+	return ((this->chassis.wheelGetLinSpeed(RIGHT) - this->chassis.wheelGetLinSpeed(LEFT)) * (MB_PI2ANG / ROBOT_DIAMETER));
 }
 
 float Miro::getLinSpeed()
@@ -94,7 +127,7 @@ float Miro::getPath()
 int Miro::attachDevice(Device *dev)
 {
 	if (dev == nullptr) return -1;
-	if (this->_device_count == MAX_DEVICES) return -3;
+	if (this->_device_count == MIRO_MAX_DEVICES) return -3;
 	
 	this->devices[this->_device_count] = dev;
 	this->_device_count++;
@@ -129,16 +162,7 @@ int Miro::dettachDevice(byte DeviceIndex)
 
 	return 0;
 }
-/*
-char* Miro::GetDeviceNameByIndex(byte DeviceIndex)
-{
-    if ((DeviceIndex >= 0) && (DeviceIndex < (this->_device_count - 1)))
-    {
-        return (this->devices[DeviceIndex]->_dev_name);
-    }
-    else return NULL; 
-}
-*/
+
 Device* Miro::GetDeviceByIndex(byte DeviceIndex)
 {
     if ((DeviceIndex >= 0) && (DeviceIndex < this->_device_count))
@@ -147,16 +171,7 @@ Device* Miro::GetDeviceByIndex(byte DeviceIndex)
     }
     else return NULL;
 }
-/*
-byte Miro::GetParamCountByDeviceIndex(byte DeviceIndex)
-{
-    if ((DeviceIndex >= 0) && (DeviceIndex < this->_device_count))
-    {
-        return (this->devices[DeviceIndex]->_param_count);
-    }
-    else return -1;
-}
-*/
+
 byte Miro::GetDeviceCount()
 {
     return this->_device_count;
