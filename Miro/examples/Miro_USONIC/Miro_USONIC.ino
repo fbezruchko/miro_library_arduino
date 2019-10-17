@@ -10,7 +10,7 @@ long duration, distance;
 
 void setup()
 {
-  Serial.begin(57600); //инициализация последовательного порта
+  Serial.begin(115200); //инициализация последовательного порта
   pinMode(TRIG,OUTPUT); //настройка пина излучателя на выход
 }
 void loop()
