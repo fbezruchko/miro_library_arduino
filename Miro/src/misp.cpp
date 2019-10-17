@@ -1,5 +1,5 @@
 
-#include "Protocol.h"
+#include "protocol.h"
 #include "misp.h"
 
 using namespace miro;
