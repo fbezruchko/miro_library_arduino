@@ -14,7 +14,7 @@ public:
 
 	Chassis chassis;
 	
-	void Init();
+	void Init(byte *PWM_pins, byte *DIR_pins);
 	
 	void Sync();
 
@@ -25,11 +25,24 @@ public:
 	*/
 	int MoveDist(float lin_speed, float ang_speed, float dist, bool en_break); //Движение робота с заданными линейной и угловыми скоростями
 	
+	/*движение робота с прямым управлением PWM.
+	PWM_lin_speed - значение PWM, задающего линейную скорость робота [-255..255],
+	PWM_ang_speed - разница в значениях PWM, определяющих угловую скорость робота [-255..255],
+	time - время воздействия сигнала PWM (millis),
+	*/
+	int MovePWMTime(int PWM_lin_speed, int PWM_angle_speed, unsigned long time);
+	
 	/*движение робота.
 	lin_speed - линейная скорость робота (м/с),
 	ang_speed - угловая скорость робота (град/сек),
 	*/
 	int Move(float lin_speed, float ang_speed); //Движение робота с заданными линейной и угловыми скоростями
+	
+	/*движение робота с прямым управлением PWM.
+	PWM_lin_speed - значение PWM, задающего линейную скорость робота [-255..255],
+	PWM_ang_speed - разница в значениях PWM, определяющих угловую скорость робота [-255..255],
+	*/
+	int MovePWM(int PWM_lin_speed, int PWM_angle_speed);
 
 	/*поворот робота на месте.
 	ang - угол поворота,

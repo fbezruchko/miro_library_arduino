@@ -46,7 +46,9 @@ void Init_LedSeq()
 
 void setup() {
   // put your setup code here, to run once:
-  robot.Init();
+  byte PWM_pins[2] = { 5, 6 };
+  byte DIR_pins[2] = { 4, 7 };
+  robot.Init(PWM_pins, DIR_pins);
 
   robot_Led_L.Init(9);
   robot_Led_R.Init(10);
@@ -70,9 +72,6 @@ void setup() {
 
   robot_Servo.Init(8, 60, 110);
   robot.attachDevice(&robot_Servo);
-
-  pinMode(8,OUTPUT);
-  digitalWrite(8, 0);
 
   parser.begin();
   Init_LedSeq();

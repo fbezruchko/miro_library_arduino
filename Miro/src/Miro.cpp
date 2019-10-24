@@ -8,9 +8,9 @@
 
 using namespace miro;
 
-void Miro::Init()
+void Miro::Init(byte *PWM_pins, byte *DIR_pins)
 {
-	this->chassis.Init();
+	this->chassis.Init(PWM_pins, DIR_pins);
     this->_device_count = 0;
 }
 
@@ -47,6 +47,16 @@ int Miro::MoveDist(float lin_speed, float ang_speed, float dist, bool en_break)
 	return result;
 }
 
+int Miro::MovePWMTime(int PWM_lin_speed, int PWM_angle_speed, unsigned long time)
+{
+	int _wheelSetPWM[WHEEL_COUNT];
+	_wheelSetPWM[LEFT] = PWM_lin_speed - PWM_angle_speed / 2;
+	_wheelSetPWM[RIGHT] = PWM_lin_speed + PWM_angle_speed / 2;
+
+	int result = this->chassis.wheelRotatePWMTime(_wheelSetPWM, time);
+	return result;
+}
+
 int Miro::Move(float lin_speed, float ang_speed)
 {
 	float _wheelSetAngSpeed[WHEEL_COUNT];
@@ -60,6 +70,16 @@ int Miro::Move(float lin_speed, float ang_speed)
 	// Serial.println();
 
 	int result = this->chassis.wheelRotate(_wheelSetAngSpeed);
+	return result;
+}
+
+int Miro::MovePWM(int PWM_lin_speed, int PWM_angle_speed)
+{
+	int _wheelSetPWM[WHEEL_COUNT];
+	_wheelSetPWM[LEFT] = PWM_lin_speed - PWM_angle_speed / 2;
+	_wheelSetPWM[RIGHT] = PWM_lin_speed + PWM_angle_speed / 2;
+
+	int result = this->chassis.wheelRotatePWM(_wheelSetPWM);
 	return result;
 }
 

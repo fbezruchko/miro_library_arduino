@@ -11,7 +11,7 @@ namespace miro {
 class Chassis {
 public:
 	/*Init pins, modes, irq's - must call in setup()*/
-	void Init();
+	void Init(byte *PWM_pins, byte *DIR_pins);
 
     void printWheelTable();
 
@@ -36,12 +36,23 @@ public:
 	ang [] - array-setting the rotation angles of each wheel (degree)
 	*/
 	int wheelRotateAng(float *speed, float *ang, bool en_break);
+	
+	/*
+	Wheel rotation at a given PWM [-255..255] for a time in millis.
+	*/
+	int wheelRotatePWMTime(int *speedPWM, unsigned long time);
 
 	/*
 	Wheel rotation at a given speed (without time or angle limit - until the wheels are clearly stopped).
 	The return from the function will happen immediately. The wheel spin control process will be performed in the Sync () function.
 	*/
-	int wheelRotate(float *speed); //TO-DO
+	int wheelRotate(float *speed);
+	
+	/*
+	Wheel rotation at a given PWM [-255..255].
+	The return from the function will happen immediately.
+	*/
+	int wheelRotatePWM(int *speedPWM);
 
 	/*Returns the odometry counter value of the selected motor (wheel)*/
 	unsigned long wheelGetTachom(byte wheel);
@@ -79,6 +90,10 @@ public:
 	int wheelRotateAng_one(float speed, float ang, byte wheel);
 
 private:
+
+	byte wheel_PWM_pins[WHEEL_COUNT];
+	byte wheel_DIR_pins[WHEEL_COUNT];
+	
 	void _wheel_rotate(byte wheel);
 	void _wheel_rotate_sync(bool en_break);
 	

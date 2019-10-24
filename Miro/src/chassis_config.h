@@ -15,6 +15,7 @@
 #define ROBOT_DIAMETER (0.163) //ђасстояние между левым и правым колесом (метров)
 
 #define WHEEL_SEGMENTS (30.0) //Число сегментов маркерной линейки тахометра. Надо переделать на 18, чтобы поворот робота на 90 градусов был точнее.
+
 #define WHEEL_RADIUS (0.0345) //Радиус колеса (метров)
 
 #define MEAN_DEPTH 8 //МОЖНО НЕ ТРОГАТЬ! Глубина фильтра измерения скорости по тахометрам (размер массива для усреднения)
@@ -32,11 +33,11 @@
 
 namespace miro {
 
-static byte wheel_PWM_pins[WHEEL_COUNT] = { 5, 6 };
+//static byte wheel_PWM_pins[WHEEL_COUNT] = { 5, 6 };
 //wheel_PWM_pins[0] = 5;
 //wheel_PWM_pins[1] = 6;
 
-static byte wheel_DIR_pins[WHEEL_COUNT] = { 4, 7 };
+//static byte wheel_DIR_pins[WHEEL_COUNT] = { 4, 7 };
 //wheel_DIR_pins[0] = 4;
 //wheel_DIR_pins[1] = 7;
 

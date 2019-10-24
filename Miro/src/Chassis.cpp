@@ -29,13 +29,15 @@ unsigned long wheel_time_min[WHEEL_COUNT];
 
 using namespace miro;
 
-void Chassis::Init()
+void Chassis::Init(byte *PWM_pins, byte *DIR_pins)
 {
 	pinMode(PIN_VBAT, INPUT);
 
 	for (byte w = 0; w < WHEEL_COUNT; w++)
 	{
 		pinMode(wheel_TACHOM_pins[w], INPUT);
+		wheel_PWM_pins[w] = PWM_pins[w];
+		wheel_DIR_pins[w] = DIR_pins[w];
 
 		pinMode(wheel_PWM_pins[w], OUTPUT);
 		pinMode(wheel_DIR_pins[w], OUTPUT);
@@ -181,6 +183,66 @@ void Chassis::Sync()
 	for (byte w = 0; w < WHEEL_COUNT; w++) analogWrite(wheel_PWM_pins[w], U0[w]);
 
 	return;
+}
+
+int Chassis::wheelRotatePWMTime(int *speedPWM, unsigned long time)
+{
+	byte w;
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		if ((abs(speedPWM[w]) > 255) || (speedPWM[w] == 0)) return -1;
+	}
+	
+	this->_wheel_sync_move = true;
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		this->_wheel_move[w] = true;
+		if (speedPWM[w] < 0) 
+		{
+			digitalWrite(wheel_DIR_pins[w], HIGH);
+			analogWrite(wheel_PWM_pins[w], 255 - speedPWM[w]);
+		}
+		else
+		{
+			digitalWrite(wheel_DIR_pins[w], LOW);
+			analogWrite(wheel_PWM_pins[w], speedPWM[w]);
+		}
+	}
+	delay(time);
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		digitalWrite(wheel_DIR_pins[w], LOW);
+		analogWrite(wheel_PWM_pins[w], 0);
+		this->_wheel_move[w] = false;
+	}
+	
+	this->_wheel_sync_move = false;
+	return 0;
+}
+
+int Chassis::wheelRotatePWM(int *speedPWM)
+{
+	byte w;
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		if ((abs(speedPWM[w]) > 255) || (speedPWM[w] == 0)) return -1;
+	}
+	
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		this->_wheel_move[w] = true;
+		if (speedPWM[w] < 0) 
+		{
+			digitalWrite(wheel_DIR_pins[w], HIGH);
+			analogWrite(wheel_PWM_pins[w], 255 - speedPWM[w]);
+		}
+		else
+		{
+			digitalWrite(wheel_DIR_pins[w], LOW);
+			analogWrite(wheel_PWM_pins[w], speedPWM[w]);
+		}
+	}
+	return 0;
 }
 
 int Chassis::wheelRotateAng(float *speed, float *ang, bool en_break)
