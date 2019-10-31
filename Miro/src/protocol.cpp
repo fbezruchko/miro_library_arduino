@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "Protocol.h"
 
 //using namespace miro;
 

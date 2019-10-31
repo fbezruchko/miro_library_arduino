@@ -1,7 +1,7 @@
 #ifndef misp_h
 #define misp_h
 
-#include "protocol.h"
+#include "Protocol.h"
 
 namespace miro {
 

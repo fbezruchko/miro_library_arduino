@@ -1,4 +1,5 @@
 #include "CommLgcSerial.h"
+
 #include "Miro.h"
 
 using namespace miro;
@@ -43,8 +44,6 @@ int CommLgcSerial::parse(char *str)
   if (!strcmp(istr, "miroget")) return (miroget(istr));
   else if (!strcmp(istr, "miroset")) return (miroset(istr));
   else if (!strcmp(istr, "mirodevtable")) return (mirodevtable(istr));
-  else if (!strcmp(istr, "mirocalibwheel")) return (mirocalibwheel(istr));
-  else if (!strcmp(istr, "mirowheeltable")) return (mirowheeltable(istr));
   else if (!strcmp(istr, "miromode")) return (miromode(istr));
   else
   {
@@ -69,49 +68,10 @@ int CommLgcSerial::miroget(char * str)
     return -1;
   }
 
-  if (!strcmp(istr, "-s"))
-  {
-    float path = robot.getPath();
-    Serial.print(F("Path = "));
-    Serial.print(path);
-    Serial.println();
-    return 0;
-  }
-
   if (!strcmp(istr, "-fw"))
   {
     Serial.print(F("Version = "));
     Serial.print(MIRO_VERSION);
-    Serial.println();
-    return 0;
-  }
-
-  if (!strcmp(istr, "-v"))
-  {
-    float linear_speed = 0.0;
-    linear_speed = robot.getLinSpeed();
-    Serial.print(F("Linear speed = "));
-    Serial.print(linear_speed);
-    Serial.println();
-    return 0;
-  }
-
-  if (!strcmp(istr, "-w"))
-  {
-    float angular_speed = 0.0;
-    angular_speed = robot.getAngSpeed();
-    Serial.print(F("Angular speed = "));
-    Serial.print(angular_speed);
-    Serial.println();
-    return 0;
-  }
-
-  if (!strcmp(istr, "-wR"))
-  {
-    float angular_speed_radians = 0.0;
-    angular_speed_radians = robot.getAngSpeedRad();
-    Serial.print(F("Angular speed in radians = "));
-    Serial.print(angular_speed_radians);
     Serial.println();
     return 0;
   }
@@ -202,7 +162,7 @@ int CommLgcSerial::miroset(char * str)
 
   //==============================================================
 
-  if (!strcmp(istr, "-r"))
+  if (!strcmp(istr, "-rt"))
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
@@ -210,32 +170,32 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    float angular_speed = atof(istr);
+    int angular_speed = atoi(istr);
 
     istr = strtok(NULL, " ");
     if (istr == NULL)
     {
-      Serial.print(F("Speed = "));
+      Serial.print(F("Rotate speed (PWM) = "));
       Serial.print(angular_speed);
       Serial.println();
-      Serial.println(robot.Rotate(angular_speed));
+      Serial.println(robot.RotatePWM(angular_speed));
       return 0;
     }
 
-    float angle = atof(istr);
+    int pwm_time = atoi(istr);
 
-    Serial.print(F("Speed = "));
+    Serial.print(F("Rotate speed (PWM) = "));
     Serial.print(angular_speed);
-    Serial.print(F(" | Angle = "));
-    Serial.print(angle);
+    Serial.print(F(" | Rotate time (millis) = "));
+    Serial.print(pwm_time);
     Serial.println();
-    Serial.println(robot.RotateAng(angular_speed, angle, true));
+    Serial.println(robot.RotatePWMTime(angular_speed, pwm_time));
     return 0;
   }
-
+  
   //==============================================================
-
-  if (!strcmp(istr, "-m"))
+  
+  if (!strcmp(istr, "-mt"))
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
@@ -243,7 +203,11 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    float linear_speed = atof(istr);
+    int linear_speed = atoi(istr);
+    if (abs(linear_speed) > 255) {
+      Serial.println(F("Robot linear speed (PWM) must be between -255 and +255"));
+      return -1;
+    }
 
     istr = strtok(NULL, " ");
     if (istr == NULL) {
@@ -251,7 +215,11 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    float angular_speed = atof(istr);
+    int angular_speed = atoi(istr);
+    if (abs(angular_speed) > 255) {
+      Serial.println(F("Robot angular speed (PWM) must be between -255 and +255"));
+      return -1;
+    }
 
     istr = strtok(NULL, " ");
     if (istr == NULL)
@@ -261,27 +229,24 @@ int CommLgcSerial::miroset(char * str)
       Serial.print(F(" | A_speed = "));
       Serial.print(angular_speed);
       Serial.println();
-      if (robot.Move(linear_speed, angular_speed))
-      {
-        Serial.println(F("ERROR"));
-        Serial.print(F("Robot linear speed (m/s) must be between "));
-        Serial.print(robot.chassis.getMinLinSpeed());
-        Serial.print(F(" and "));
-        Serial.print(robot.chassis.getMaxLinSpeed());
-        Serial.println();
-      }
+      Serial.println(robot.MovePWM(linear_speed, angular_speed));
       return 0;
     }
-    float distance = atof(istr);
+    
+    int pwm_time = atoi(istr);
+    if (pwm_time < 0) {
+      Serial.println(F("Robot moving time (millis) must be between 0 and 16535"));
+      return -1;
+    }
 
     Serial.print(F("L_speed = "));
     Serial.print(linear_speed);
     Serial.print(F(" | A_speed = "));
     Serial.print(angular_speed);
-    Serial.print(F(" | distance = "));
-    Serial.print(distance);
+    Serial.print(F(" | Moving time = "));
+    Serial.print(pwm_time);
     Serial.println();
-    Serial.println(robot.MoveDist(linear_speed, angular_speed, distance, true));
+    Serial.println(robot.MovePWMTime(linear_speed, angular_speed, pwm_time));
     return 0;
   }
 
@@ -356,7 +321,6 @@ int CommLgcSerial::miroset(char * str)
 /************************************************************************/
 /************************************************************************/
 /************************************************************************/
-
 int CommLgcSerial::mirodevtable(char * str)
 {
   Serial.println(F(">>>MIRODEVTABLE CALL"));
@@ -367,34 +331,6 @@ int CommLgcSerial::mirodevtable(char * str)
     Serial.print(robot.GetDeviceByIndex(i)->GetName());
     Serial.println();
   }
-  return 0;
-}
-
-int CommLgcSerial::mirocalibwheel(char * str)
-{
-  char *istr;
-  istr = strtok(NULL, " ");
-  Serial.print(F("MIRO: mirocalibwheel running... "));
-  Serial.println(istr);
-  if (istr == NULL) {
-    Serial.println(F("ERROR: No 'wheel' parameter."));
-    return -1;
-  }
-
-  byte wheel = atoi(istr);
-  if (wheel < 0 || wheel > robot.chassis.getWheelCount()) {
-    Serial.println(F("ERROR: wrong wheel index."));
-    return -1;
-  }
-  robot.chassis.wheelCalibrate(wheel);
-  robot.chassis.printWheelTable();
-  return 0;
-}
-
-int CommLgcSerial::mirowheeltable(char * str)
-{
-  Serial.println(F("MIRO: mirowheeltable running..."));
-  robot.chassis.printWheelTable();
   return 0;
 }
 
