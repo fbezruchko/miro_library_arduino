@@ -12,7 +12,8 @@ MIROLdr             KEYWORD1	Miro Robot LDR Class
 MIROLine			KEYWORD1	Miro Robot Line sensor Class
 MIROUsonic 	        KEYWORD1	Miro Robot Usonic Class
 MIROServo 	        KEYWORD1	Miro Robot Servo Class
-Chassis 	    KEYWORD1	Miro Robot chassis Class
+BasicChassis 	    KEYWORD1	Miro Robot basic chassis Class
+SyncChassis 	    KEYWORD1	Miro Robot chassis with encoders Class
 Device 	        KEYWORD1	Miro Robot device Class
 
 #######################################

@@ -10,7 +10,10 @@ using namespace miro;
 #define MODE_DEFALT 0
 #define MODE_LDR_FOLLOW 1
 
-Miro robot;
+byte PWM_pins[2] = { 5, 6 };
+byte DIR_pins[2] = { 4, 7 };
+Miro robot(PWM_pins, DIR_pins);
+
 MIROLed robot_Led_L;
 MIROLed robot_Led_R;
 MIROUsonic robot_Us;
@@ -46,10 +49,6 @@ void Init_LedSeq()
 
 void setup() {
   // put your setup code here, to run once:
-  byte PWM_pins[2] = { 5, 6 };
-  byte DIR_pins[2] = { 4, 7 };
-  robot.Init(PWM_pins, DIR_pins);
-
   robot_Led_L.Init(9);
   robot_Led_R.Init(10);
   robot.attachDevice(&robot_Led_L);

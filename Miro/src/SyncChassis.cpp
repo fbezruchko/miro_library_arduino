@@ -445,7 +445,7 @@ float SyncChassis::getMinLinSpeed()
 	unsigned long min_wheel_speed_min = this->_calib_wheel_table[0][SPEED][0];
 	for (byte w = 0; w < WHEEL_COUNT; w++)
 	{
-		if (this->_calib_wheel_table[w][SPEED][0] < min_wheel_speed_min) min_wheel_speed_min = this->_calib_wheel_table[w][SPEED][0];
+		if (this->_calib_wheel_table[w][SPEED][0] > min_wheel_speed_min) min_wheel_speed_min = this->_calib_wheel_table[w][SPEED][0];
 	}
 	return (min_wheel_speed_min / 180.0) * MB_PI * WHEEL_RADIUS;
 }
@@ -459,6 +459,24 @@ float SyncChassis::getOptLinSpeed()
 		if (this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE/2] < opt_wheel_speed_min) opt_wheel_speed_min = this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE/2];
 	}
 	return (opt_wheel_speed_min / 180.0) * MB_PI * WHEEL_RADIUS;
+}
+
+//========================================== getMaxLinSpeed
+float SyncChassis::getMaxAngSpeed()
+{
+	return (2 * MB_PI2ANG * (this->getMaxLinSpeed()) / ROBOT_DIAMETER);
+}
+
+//========================================== getMaxLinSpeed
+float SyncChassis::getMinAngSpeed()
+{
+	return (1+ 2 * MB_PI2ANG * (this->getMinLinSpeed()) / ROBOT_DIAMETER);
+}
+
+//========================================== getMaxLinSpeed
+float SyncChassis::getOptAngSpeed()
+{
+	return (2 * MB_PI2ANG * (this->getOptLinSpeed()) / ROBOT_DIAMETER);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++

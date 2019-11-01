@@ -111,6 +111,10 @@ public:
 	float getMaxLinSpeed();
 	float getOptLinSpeed();
 	float getMinLinSpeed();
+	
+	float getMaxAngSpeed();
+	float getOptAngSpeed();
+	float getMinAngSpeed();
 
 private:
 

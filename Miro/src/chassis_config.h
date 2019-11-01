@@ -9,7 +9,7 @@
 
 namespace miro {
 	
-//#define CHASSIS_W_ENCODERS 1
+#define CHASSIS_W_ENCODERS 1
 
 #define PIN_VBAT A0	//Пин для получения напряжения батареи (ячейки 1S - до 4.2В)
 #define VOLTAGE_DIVIDER 1

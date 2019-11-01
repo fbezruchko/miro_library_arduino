@@ -3,6 +3,8 @@
 
 using namespace miro;
 
+#define CHASSIS_W_ENCODERS 1
+
 char inputString[RXBUFFERSIZE];      // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 byte rx_buffer_pos = 0;
@@ -218,7 +220,15 @@ int CommLgcSerial::miroset(char * str)
       Serial.print(F("Speed = "));
       Serial.print(angular_speed);
       Serial.println();
-      Serial.println(robot.Rotate(angular_speed));
+      if (robot.Rotate(angular_speed))
+      {
+        Serial.println(F("ERROR"));
+        Serial.print(F("Robot angular speed (degrees/s) must be between "));
+        Serial.print(robot.chassis.getMinAngSpeed());
+        Serial.print(F(" and "));
+        Serial.print(robot.chassis.getMaxAngSpeed());
+        Serial.println();
+      }
       return 0;
     }
 
@@ -229,7 +239,15 @@ int CommLgcSerial::miroset(char * str)
     Serial.print(F(" | Angle = "));
     Serial.print(angle);
     Serial.println();
-    Serial.println(robot.RotateAng(angular_speed, angle, true));
+    if (robot.RotateAng(angular_speed, angle, true))
+    {
+      Serial.println(F("ERROR"));
+      Serial.print(F("Robot angular speed (degrees/s) must be between "));
+      Serial.print(robot.chassis.getMinAngSpeed());
+      Serial.print(F(" and "));
+      Serial.print(robot.chassis.getMaxAngSpeed());
+      Serial.println();
+    }
     return 0;
   }
 
@@ -281,7 +299,15 @@ int CommLgcSerial::miroset(char * str)
     Serial.print(F(" | distance = "));
     Serial.print(distance);
     Serial.println();
-    Serial.println(robot.MoveDist(linear_speed, angular_speed, distance, true));
+    if (robot.MoveDist(linear_speed, angular_speed, distance, true))
+    {
+      Serial.println(F("ERROR"));
+      Serial.print(F("Robot linear speed (m/s) must be between "));
+      Serial.print(robot.chassis.getMinLinSpeed());
+      Serial.print(F(" and "));
+      Serial.print(robot.chassis.getMaxLinSpeed());
+      Serial.println();
+    }
     return 0;
   }
 
