@@ -20,6 +20,8 @@ class CommLgcSerial {
     int mirocalibwheel(char *str);
     int mirowheeltable(char * str);
     int miromode(char * str);
+
+    void printWheelTable();
 };
 
 #endif

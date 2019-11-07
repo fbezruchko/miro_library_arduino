@@ -1,76 +1,87 @@
-#include "SyncChassis.h"
+#include "Chassis.h"
+#include "defs.h"
 
 #include "math.h"
 #include "EEPROM.h"
 
-#define SEGMENT_ANGLE (360.0/WHEEL_SEGMENTS)
-#define WHEEL_TIME_MIN (360000000.0 / (WHEEL_ANGLE_SPEED_MAX * WHEEL_SEGMENTS))
-#define WHEEL_TIME_MAX (360000000.0 / (WHEEL_ANGLE_SPEED_MIN * WHEEL_SEGMENTS))
-#define WHEEL_TIME(speed) (360000000.0 / ((speed) * WHEEL_SEGMENTS))
-
-#define VOLTS (0)
-#define SPEED (1)
-#define BREAKDELAY (2)
-
-unsigned int dist_wheelTachomCount[WHEEL_COUNT];
-
-float U[WHEEL_COUNT];
-byte U0[WHEEL_COUNT];
-bool dir[WHEEL_COUNT];
-float Error[WHEEL_COUNT];
-
-unsigned long wheel_time_max[WHEEL_COUNT];
-unsigned long wheel_time_min[WHEEL_COUNT];
-
-using namespace miro;
-
+//using namespace miro;
+ 
 //++++++++++++++++++++++++++++++++++++++++++
 //PUBLIC
 //++++++++++++++++++++++++++++++++++++++++++
+#if defined(ENCODERS_ON)
+	unsigned long wheel_time_max[WHEEL_COUNT];
+	unsigned long wheel_time_min[WHEEL_COUNT];
 
-//========================================== Init
+	unsigned int dist_wheelEncoderCount[WHEEL_COUNT];
 
-void SyncChassis::Init(byte *PWM_pins, byte *DIR_pins)
+	float U[WHEEL_COUNT];
+	byte U0[WHEEL_COUNT];
+	bool dir[WHEEL_COUNT];
+	float Error[WHEEL_COUNT];
+#endif
+
+//========================================== C
+
+Chassis::Chassis(byte *PWM_pins, byte *DIR_pins)
 {
-	pinMode(PIN_VBAT, INPUT);
+	this->_init(PWM_pins, DIR_pins);
+}
 
-	for (byte w = 0; w < WHEEL_COUNT; w++)
-	{
-		wheel_PWM_pins[w] = PWM_pins[w];
-		wheel_DIR_pins[w] = DIR_pins[w];
-
-		pinMode(wheel_PWM_pins[w], OUTPUT);
-		pinMode(wheel_DIR_pins[w], OUTPUT);
-        digitalWrite(wheel_DIR_pins[w], LOW);
-        analogWrite(wheel_PWM_pins[w], 0);
-		this->_wheel_move[w] = false;
-		this->_wheelDir[w] = 1;
-	}
-	this->_wheel_sync_move = false;
+#if defined(ENCODERS_ON)
+Chassis::Chassis(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins)
+{
+	this->_init(PWM_pins, DIR_pins);
 	
 	for (byte w = 0; w < WHEEL_COUNT; w++)
 	{
-		pinMode(wheel_TACHOM_pins[w], INPUT);
-		_wheelTachomCount[w] = 0;
+		_wheel_ENCODER_pins[w] = ENCODER_pins[w];
+		pinMode(_wheel_ENCODER_pins[w], INPUT);
+		_wheelEncoderCount[w] = 0;
 
-		attachInterrupt(digitalPinToInterrupt(wheel_TACHOM_pins[w]), wheel_ISR[w], RISING);
+		attachInterrupt(digitalPinToInterrupt(this->_wheel_ENCODER_pins[w]), wheel_ISR[w], RISING);
 		
 		this->_eepromReadWheelTable(w, (float*)this->_calib_wheel_table[w]);
 		wheel_time_max[w] = WHEEL_TIME(this->_calib_wheel_table[w][SPEED][0]);//Т. к. это можно посчитать заранее вне цикла - так и делаем
 		wheel_time_min[w] = WHEEL_TIME(this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE - 1]);
 	}
+	this->_wheel_sync_move = false;
+}
+#endif
+
+void Chassis::_init(byte *PWM_pins, byte *DIR_pins)
+{
+	pinMode(PIN_VBAT, INPUT);
+
+	for (byte w = 0; w < WHEEL_COUNT; w++)
+	{
+		this->_wheel_PWM_pins[w] = PWM_pins[w];
+		this->_wheel_DIR_pins[w] = DIR_pins[w];
+
+		pinMode(this->_wheel_PWM_pins[w], OUTPUT);
+		pinMode(this->_wheel_DIR_pins[w], OUTPUT);
+        digitalWrite(this->_wheel_DIR_pins[w], LOW);
+        analogWrite(this->_wheel_PWM_pins[w], 0);
+		this->_wheel_move[w] = false;
+		this->_wheelDir[w] = 1;
+	}
 }
 
-//==========================================
-//==========================================
-//==========================================
+//========================================== D
+
+Chassis::~Chassis()
+{
+}
 
 //========================================== Sync
 
-void SyncChassis::Sync()
+void Chassis::Sync()
 {
+#if defined(ENCODERS_ON)
+	
 	unsigned long wheelTime = 0;
 	byte w;
+	
 	if (this->_wheel_sync_move)
 	{
 		for (w = 0; w < WHEEL_COUNT; w++)
@@ -110,54 +121,110 @@ void SyncChassis::Sync()
 			else
 			{
 				U0[w] = 0;
-				digitalWrite(wheel_DIR_pins[w], 0);
-				digitalWrite(wheel_PWM_pins[w], 0);
+				digitalWrite(_wheel_DIR_pins[w], 0);
+				digitalWrite(_wheel_PWM_pins[w], 0);
 			}
 		}
 	
-		for (byte w = 0; w < WHEEL_COUNT; w++) analogWrite(wheel_PWM_pins[w], U0[w]);
+		for (byte w = 0; w < WHEEL_COUNT; w++) analogWrite(_wheel_PWM_pins[w], U0[w]);
 	}
+
+#endif
 
 	return;
 }
 
-//========================================== printWheelTable
+//========================================== GetVoltage
 
-void SyncChassis::printWheelTable()
-{	
-    Serial.println(F("MOTORS CALIBRATION TABLE"));
-	for (byte w = 0; w < WHEEL_COUNT; w++)
+float Chassis::getVoltage()
+{
+	byte n = 10;
+	float v = 0;
+	for (byte i = 0; i < n; i++)
 	{
-		Serial.print(F("WHEEL "));
-		Serial.println(w);
-		Serial.print(F("VOLTS"));
-		Serial.print(F("   "));
-		Serial.print(F("DEG/SEC"));
-		Serial.print(F("   "));
-		Serial.println(F("BDELAYS"));
-
-		for (int i = 0; i < WHEEL_TABLE_SIZE; i++)
-		{
-			Serial.print(this->_calib_wheel_table[w][VOLTS][i]);
-			Serial.print(F("   "));
-			Serial.print(this->_calib_wheel_table[w][SPEED][i]);
-			Serial.print(F("   "));
-			Serial.println(this->_calib_wheel_table[w][BREAKDELAY][i]);
-		}
-		Serial.println();
+		v = v + analogRead(PIN_VBAT);
 	}
-    return;
+	v = VOLTAGE_DIVIDER * 5.0 * ((v / n) / 1023.0);
+
+	return v;
 }
 
+//========================================== wheelRotatePWMTime
+
+int Chassis::wheelRotatePWMTime(int *speedPWM, unsigned long time)
+{
+	byte w;
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		if (abs(speedPWM[w]) > 255) return -1;
+	}
+	
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		this->_wheel_move[w] = true;
+		if (speedPWM[w] < 0) 
+		{
+			digitalWrite(_wheel_DIR_pins[w], HIGH);
+			analogWrite(_wheel_PWM_pins[w], 255 - speedPWM[w]);
+		}
+		else
+		{
+			digitalWrite(_wheel_DIR_pins[w], LOW);
+			analogWrite(_wheel_PWM_pins[w], speedPWM[w]);
+		}
+	}
+	delay(time);
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		digitalWrite(_wheel_DIR_pins[w], LOW);
+		analogWrite(_wheel_PWM_pins[w], 0);
+		this->_wheel_move[w] = false;
+	}
+	
+	return 0;
+}
+
+//========================================== wheelRotatePWM
+
+int Chassis::wheelRotatePWM(int *speedPWM)
+{
+	byte w;
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		if (abs(speedPWM[w]) > 255) return -1;
+	}
+	
+	for (w = 0; w < WHEEL_COUNT; w++)
+	{
+		this->_wheel_move[w] = true;
+		if (speedPWM[w] < 0) 
+		{
+			digitalWrite(_wheel_DIR_pins[w], HIGH);
+			analogWrite(_wheel_PWM_pins[w], 255 - speedPWM[w]);
+		}
+		else
+		{
+			digitalWrite(_wheel_DIR_pins[w], LOW);
+			analogWrite(_wheel_PWM_pins[w], speedPWM[w]);
+		}
+	}
+	return 0;
+}
+
+//==========================================
+//==========================================
+//==========================================
+
+#if defined(ENCODERS_ON)
 //========================================== wheelCalibrate
 
-void SyncChassis::wheelCalibrate(byte wheel)
+void Chassis::wheelCalibrate(byte wheel)
 {
 	unsigned long wheelTime = 0;
 	this->_vbat = this->getVoltage();
 
-	digitalWrite(wheel_DIR_pins[wheel], LOW);
-	digitalWrite(wheel_PWM_pins[wheel], LOW);
+	digitalWrite(_wheel_DIR_pins[wheel], LOW);
+	digitalWrite(_wheel_PWM_pins[wheel], LOW);
 
 	this->_wheelAngSpeed[wheel] = 0;
 
@@ -168,7 +235,7 @@ void SyncChassis::wheelCalibrate(byte wheel)
 		U++;
 		wheelTime = 0;
 		
-		analogWrite(wheel_PWM_pins[wheel], U);
+		analogWrite(_wheel_PWM_pins[wheel], U);
 		delay(WHEEL_TIME_MAX * 2 / 1000);
 		
 		for (int i = 0; i < MEAN_DEPTH; i++) wheelTime = wheelTime + _wheelTimeArray[wheel][i];
@@ -190,17 +257,17 @@ void SyncChassis::wheelCalibrate(byte wheel)
 		if (U > 255) U = 255;
 		wheelTime = 0;
 		
-		dist_wheelTachomCount[wheel] = _wheelTachomCount[wheel] + 2 * WHEEL_SEGMENTS;
-		analogWrite(wheel_PWM_pins[wheel], U);
-		while (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel]);
-		if (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel])
+		dist_wheelEncoderCount[wheel] = _wheelEncoderCount[wheel] + 2 * WHEEL_SEGMENTS;
+		analogWrite(_wheel_PWM_pins[wheel], U);
+		while (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel]);
+		if (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel])
 		{
 			i--;
 			continue;
 		}
 
 		for (int m = 0; m < MEAN_DEPTH; m++) wheelTime = wheelTime + _wheelTimeArray[wheel][m];
-		analogWrite(wheel_PWM_pins[wheel], 0);
+		analogWrite(_wheel_PWM_pins[wheel], 0);
 		delay(500);
 		
 		if (wheelTime > 0)
@@ -221,18 +288,18 @@ void SyncChassis::wheelCalibrate(byte wheel)
 		while (wheelBreakDelay > 0)
 		{
 			error_count = 0;
-			dist_wheelTachomCount[wheel] = _wheelTachomCount[wheel] + WHEEL_SEGMENTS;
-			analogWrite(wheel_PWM_pins[wheel], U);
-			while (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel]);
-			digitalWrite(wheel_DIR_pins[wheel], !dir[wheel]);
-			digitalWrite(wheel_PWM_pins[wheel], dir[wheel]);
+			dist_wheelEncoderCount[wheel] = _wheelEncoderCount[wheel] + WHEEL_SEGMENTS;
+			analogWrite(_wheel_PWM_pins[wheel], U);
+			while (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel]);
+			digitalWrite(_wheel_DIR_pins[wheel], !dir[wheel]);
+			digitalWrite(_wheel_PWM_pins[wheel], dir[wheel]);
 			delay(wheelBreakDelay);//Задержка для жесктого останова - именно на это время на двигатели подается обратное напряжение
-			digitalWrite(wheel_DIR_pins[wheel], dir[wheel]);
+			digitalWrite(_wheel_DIR_pins[wheel], dir[wheel]);
 			delay(500);
 			
-			if (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel]) continue;
+			if (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel]) continue;
 			
-			error_count = _wheelTachomCount[wheel] - dist_wheelTachomCount[wheel];
+			error_count = _wheelEncoderCount[wheel] - dist_wheelEncoderCount[wheel];
 			if (min_error_count > error_count)
 			{
 				min_error_count = error_count;
@@ -248,21 +315,21 @@ void SyncChassis::wheelCalibrate(byte wheel)
 			error_count = 0;                
 			for (int t = 0; t < 5; t++)
 			{
-				dist_wheelTachomCount[wheel] = _wheelTachomCount[wheel] + WHEEL_SEGMENTS;
-				analogWrite(wheel_PWM_pins[wheel], U);
-				while (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel]);
-				digitalWrite(wheel_DIR_pins[wheel], !dir[wheel]);
-				digitalWrite(wheel_PWM_pins[wheel], dir[wheel]);
+				dist_wheelEncoderCount[wheel] = _wheelEncoderCount[wheel] + WHEEL_SEGMENTS;
+				analogWrite(_wheel_PWM_pins[wheel], U);
+				while (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel]);
+				digitalWrite(_wheel_DIR_pins[wheel], !dir[wheel]);
+				digitalWrite(_wheel_PWM_pins[wheel], dir[wheel]);
 				delay(wheelBreakDelay);//Задержка для жесктого останова - именно на это время на двигатели подается обратное напряжение
-				digitalWrite(wheel_DIR_pins[wheel], dir[wheel]);
+				digitalWrite(_wheel_DIR_pins[wheel], dir[wheel]);
 				delay(500);
 				
-				if (dist_wheelTachomCount[wheel] > _wheelTachomCount[wheel])
+				if (dist_wheelEncoderCount[wheel] > _wheelEncoderCount[wheel])
 				{
 					t--;
 					continue;
 				}
-				error_count = error_count + (_wheelTachomCount[wheel] - dist_wheelTachomCount[wheel]);
+				error_count = error_count + (_wheelEncoderCount[wheel] - dist_wheelEncoderCount[wheel]);
 			}
 			if (min_error_count > error_count)
 			{
@@ -278,16 +345,23 @@ void SyncChassis::wheelCalibrate(byte wheel)
 		else U = 255;
 		
 	}
-	analogWrite(wheel_PWM_pins[wheel], 0);
+	analogWrite(_wheel_PWM_pins[wheel], 0);
 	
 	this->_eepromWriteWheelTable(wheel, (float*)this->_calib_wheel_table[wheel]);
 	
 	return;
 }
 
+//========================================== getCalibTableValue
+
+float Chassis::getCalibTableValue(byte wheel, byte parameter, byte record)
+{
+	return _calib_wheel_table[wheel][parameter][record];
+}
+
 //========================================== wheelRotateAng
 
-int SyncChassis::wheelRotateAng(float *speed, float *ang, bool en_break)
+int Chassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 {
 	byte w;
 	for (w = 0; w < WHEEL_COUNT; w++)
@@ -305,8 +379,8 @@ int SyncChassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 	{
 		for (w = 0; w < WHEEL_COUNT; w++)
 		{
-			analogWrite(wheel_PWM_pins[w], 0);
-			digitalWrite(wheel_DIR_pins[w], LOW);
+			analogWrite(_wheel_PWM_pins[w], 0);
+			digitalWrite(_wheel_DIR_pins[w], LOW);
 			this->_wheelSetAng[w] = 0;
 			this->_wheelSetAngSpeed[w] = 0;
 			this->_wheel_move[w] = false;
@@ -329,7 +403,7 @@ int SyncChassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 		this->_wheelDir[w] = 1;
 		if ((this->_wheelSetAng[w] * this->_wheelSetAngSpeed[w]) < 0) this->_wheelDir[w] = -1;
 
-		dist_wheelTachomCount[w] = _wheelTachomCount[w] + int(0.51 + (fabs(this->_wheelSetAng[w]) / float(SEGMENT_ANGLE))); //число сегментов маркерной линейки колеса, которое нужно отсчитать, чтобы повернуть на требуемый угол;
+		dist_wheelEncoderCount[w] = _wheelEncoderCount[w] + int(0.51 + (fabs(this->_wheelSetAng[w]) / float(SEGMENT_ANGLE))); //число сегментов маркерной линейки колеса, которое нужно отсчитать, чтобы повернуть на требуемый угол;
 		this->_vbat = getVoltage();
 		U[w] = this->_wheelGetU(fabs(this->_wheelSetAngSpeed[w]), w, this->_vbat);
 		if (U[w] < 0) return -1;
@@ -345,8 +419,8 @@ int SyncChassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 
 		this->_wheelSetAngSpeed[w] = (float)this->_wheelDir[w] * fabs(this->_wheelSetAngSpeed[w]);
 
-		digitalWrite(wheel_DIR_pins[w], dir[w]);
-		digitalWrite(wheel_PWM_pins[w], dir[w]);
+		digitalWrite(_wheel_DIR_pins[w], dir[w]);
+		digitalWrite(_wheel_PWM_pins[w], dir[w]);
 		this->_wheel_move[w] = true;
 	}
 
@@ -359,7 +433,7 @@ int SyncChassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 
 //========================================== wheelRotate
 
-int SyncChassis::wheelRotate(float *speed)
+int Chassis::wheelRotate(float *speed)
 {
 	byte w;
 	for (w = 0; w < WHEEL_COUNT; w++)
@@ -376,8 +450,8 @@ int SyncChassis::wheelRotate(float *speed)
 	{
 		for (w = 0; w < WHEEL_COUNT; w++)
 		{
-			analogWrite(wheel_PWM_pins[w], 0);
-			digitalWrite(wheel_DIR_pins[w], LOW);
+			analogWrite(_wheel_PWM_pins[w], 0);
+			digitalWrite(_wheel_DIR_pins[w], LOW);
 			this->_wheelSetAngSpeed[w] = 0;
 			this->_wheel_move[w] = false;
 		}
@@ -411,8 +485,8 @@ int SyncChassis::wheelRotate(float *speed)
 
 		this->_wheelSetAngSpeed[w] = (float)this->_wheelDir[w] * fabs(this->_wheelSetAngSpeed[w]);
 
-		digitalWrite(wheel_DIR_pins[w], dir[w]);
-		digitalWrite(wheel_PWM_pins[w], dir[w]);
+		digitalWrite(_wheel_DIR_pins[w], dir[w]);
+		digitalWrite(_wheel_PWM_pins[w], dir[w]);
 		this->_wheel_move[w] = true;
 	}
 
@@ -420,70 +494,19 @@ int SyncChassis::wheelRotate(float *speed)
 }
 
 //========================================== wheelGetPath
-float SyncChassis::wheelGetPath(byte wheel) { return 2 * MB_PI * WHEEL_RADIUS * ((float)_wheelTachomCount[wheel] / WHEEL_SEGMENTS); }
+float Chassis::wheelGetPath(byte wheel) { return 2 * MIRO_PI * WHEEL_RADIUS * ((float)_wheelEncoderCount[wheel] / WHEEL_SEGMENTS); }
 
-//========================================== wheelGetTachom
-unsigned long SyncChassis::wheelGetTachom(byte wheel) { return _wheelTachomCount[wheel]; }
+//========================================== wheelGetEncoder
+unsigned long Chassis::wheelGetEncoder(byte wheel) { return _wheelEncoderCount[wheel]; }
 
-//========================================== wheelResetTachom
-void SyncChassis::wheelResetTachom(byte wheel) { _wheelTachomCount[wheel] = 0; }
-
-//========================================== getMaxLinSpeed
-float SyncChassis::getMaxLinSpeed()
-{
-	unsigned long min_wheel_speed_max = this->_calib_wheel_table[0][SPEED][WHEEL_TABLE_SIZE - 1];
-	for (byte w = 0; w < WHEEL_COUNT; w++)
-	{
-		if (this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE - 1] < min_wheel_speed_max) min_wheel_speed_max = this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE - 1];
-	}
-	return (min_wheel_speed_max / 180.0) * MB_PI * WHEEL_RADIUS;
-}
-
-//========================================== getMinLinSpeed
-float SyncChassis::getMinLinSpeed()
-{
-	unsigned long min_wheel_speed_min = this->_calib_wheel_table[0][SPEED][0];
-	for (byte w = 0; w < WHEEL_COUNT; w++)
-	{
-		if (this->_calib_wheel_table[w][SPEED][0] > min_wheel_speed_min) min_wheel_speed_min = this->_calib_wheel_table[w][SPEED][0];
-	}
-	return (min_wheel_speed_min / 180.0) * MB_PI * WHEEL_RADIUS;
-}
-
-//========================================== getOptLinSpeed
-float SyncChassis::getOptLinSpeed()
-{
-	unsigned long opt_wheel_speed_min = this->_calib_wheel_table[0][SPEED][WHEEL_TABLE_SIZE/2];
-	for (byte w = 0; w < WHEEL_COUNT; w++)
-	{
-		if (this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE/2] < opt_wheel_speed_min) opt_wheel_speed_min = this->_calib_wheel_table[w][SPEED][WHEEL_TABLE_SIZE/2];
-	}
-	return (opt_wheel_speed_min / 180.0) * MB_PI * WHEEL_RADIUS;
-}
-
-//========================================== getMaxLinSpeed
-float SyncChassis::getMaxAngSpeed()
-{
-	return (2 * MB_PI2ANG * (this->getMaxLinSpeed()) / ROBOT_DIAMETER);
-}
-
-//========================================== getMaxLinSpeed
-float SyncChassis::getMinAngSpeed()
-{
-	return (1+ 2 * MB_PI2ANG * (this->getMinLinSpeed()) / ROBOT_DIAMETER);
-}
-
-//========================================== getMaxLinSpeed
-float SyncChassis::getOptAngSpeed()
-{
-	return (2 * MB_PI2ANG * (this->getOptLinSpeed()) / ROBOT_DIAMETER);
-}
+//========================================== wheelResetEncoder
+void Chassis::wheelResetEncoder(byte wheel) { _wheelEncoderCount[wheel] = 0; }
 
 //++++++++++++++++++++++++++++++++++++++++++
 //PRIVATE
 //++++++++++++++++++++++++++++++++++++++++++
 
-int SyncChassis::_eepromWriteWheelTable(byte wheel, float *table)
+int Chassis::_eepromWriteWheelTable(byte wheel, float *table)
 {
 	unsigned int N = WHEEL_TABLE_SIZE*(3 * sizeof(float));
 	unsigned int addr = EEPROM_WHEEL_TABLE_ADDR + wheel*WHEEL_TABLE_SIZE*(3 * sizeof(float));
@@ -497,7 +520,7 @@ int SyncChassis::_eepromWriteWheelTable(byte wheel, float *table)
 }
 
 
-int SyncChassis::_eepromReadWheelTable(byte wheel, float *table)
+int Chassis::_eepromReadWheelTable(byte wheel, float *table)
 {
 	unsigned int N = WHEEL_TABLE_SIZE*(3 * sizeof(float));
 	unsigned int addr = EEPROM_WHEEL_TABLE_ADDR + wheel*WHEEL_TABLE_SIZE*(3 * sizeof(float));
@@ -511,7 +534,7 @@ int SyncChassis::_eepromReadWheelTable(byte wheel, float *table)
 	return 0;
 }
 
-int SyncChassis::_wheelGetU(float ang_speed, int wheel, float volts)
+int Chassis::_wheelGetU(float ang_speed, int wheel, float volts)
 {
 	unsigned int U = 0;
 	float v = 0;
@@ -537,7 +560,7 @@ int SyncChassis::_wheelGetU(float ang_speed, int wheel, float volts)
 	return U;
 }
 
-int SyncChassis::_wheelGetBDelay(float ang_speed, int wheel)
+int Chassis::_wheelGetBDelay(float ang_speed, int wheel)
 {
 	unsigned int BDelay = 0;
 	byte i = 0;
@@ -554,13 +577,13 @@ int SyncChassis::_wheelGetBDelay(float ang_speed, int wheel)
 	return BDelay;
 }
 
-void SyncChassis::_wheel_rotate(byte wheel)
+void Chassis::_wheel_rotate(byte wheel)
 {
 	unsigned long wheelTime = 0;
 
 	while (1)
 	{
-		if (dist_wheelTachomCount[wheel] <= _wheelTachomCount[wheel]) break; //Выход из цикла при достижении необходимого числа отметок маркера - поворот совершен
+		if (dist_wheelEncoderCount[wheel] <= _wheelEncoderCount[wheel]) break; //Выход из цикла при достижении необходимого числа отметок маркера - поворот совершен
 		
 		if (_syncloop[wheel])
 		{
@@ -591,21 +614,21 @@ void SyncChassis::_wheel_rotate(byte wheel)
 		U0[wheel] = abs((int)U[wheel]);
 		if (dir[wheel]) U0[wheel] = 255 - U0[wheel];
 
-		analogWrite(wheel_PWM_pins[wheel], U0[wheel]);
+		analogWrite(_wheel_PWM_pins[wheel], U0[wheel]);
 	}
 
-	digitalWrite(wheel_DIR_pins[wheel], !dir[wheel]);
-	digitalWrite(wheel_PWM_pins[wheel], dir[wheel]);
+	digitalWrite(_wheel_DIR_pins[wheel], !dir[wheel]);
+	digitalWrite(_wheel_PWM_pins[wheel], dir[wheel]);
 	
 	delay(this->_wheelGetBDelay(fabs(this->_wheelAngSpeed[wheel]), wheel));//Задержка для жесктого останова - именно на это время на двигатели подается обратное напряжение
-	digitalWrite(wheel_DIR_pins[wheel], dir[wheel]);
+	digitalWrite(_wheel_DIR_pins[wheel], dir[wheel]);
 
-	dist_wheelTachomCount[wheel] = _wheelTachomCount[wheel];
+	dist_wheelEncoderCount[wheel] = _wheelEncoderCount[wheel];
 	this->_wheelAngSpeed[wheel] = 0;
 	this->_wheelSetAngSpeed[wheel] = 0;
 }
 
-void SyncChassis::_wheel_rotate_sync(bool en_break)
+void Chassis::_wheel_rotate_sync(bool en_break)
 {
 	unsigned long wheelTime = 0;
 	
@@ -614,7 +637,7 @@ void SyncChassis::_wheel_rotate_sync(bool en_break)
 		byte w;
 		for (w = 0; w < WHEEL_COUNT; w++)
 		{
-			if (dist_wheelTachomCount[w] <= _wheelTachomCount[w]) break; //Выход из цикла при достижении необходимого числа отметок маркера - поворот совершен
+			if (dist_wheelEncoderCount[w] <= _wheelEncoderCount[w]) break; //Выход из цикла при достижении необходимого числа отметок маркера - поворот совершен
 		}
 		if (w < WHEEL_COUNT) break; //Тот break что выше выйдет только из цикла for, а этой строчкой мы выходим из всего цикла while
 		//При этом, выход из цикла произойдет когда хотя бы одно из колес совершит поворот.
@@ -651,27 +674,29 @@ void SyncChassis::_wheel_rotate_sync(bool en_break)
 				if (dir[w]) U0[w] = 255 - U0[w];
 			}
 		}
-		for (byte w = 0; w < WHEEL_COUNT; w++) analogWrite(wheel_PWM_pins[w], U0[w]);
+		for (byte w = 0; w < WHEEL_COUNT; w++) analogWrite(_wheel_PWM_pins[w], U0[w]);
 	}
 	if (en_break)
 	{
 		for (byte w = 0; w < WHEEL_COUNT; w++)
 		{
-			digitalWrite(wheel_DIR_pins[w], !dir[w]);
-			digitalWrite(wheel_PWM_pins[w], dir[w]);
+			digitalWrite(_wheel_DIR_pins[w], !dir[w]);
+			digitalWrite(_wheel_PWM_pins[w], dir[w]);
 		}
 		delay(this->_wheelGetBDelay(fabs(this->_wheelAngSpeed[0]), 0));//Задержка для жесктого останова - именно на это время на двигатели подается обратное напряжение
 	}
 	for (byte w = 0; w < WHEEL_COUNT; w++) 
 	{
-		digitalWrite(wheel_DIR_pins[w], dir[w]);
-		digitalWrite(wheel_PWM_pins[w], dir[w]);
+		digitalWrite(_wheel_DIR_pins[w], dir[w]);
+		digitalWrite(_wheel_PWM_pins[w], dir[w]);
 	}
 
 	for (byte w = 0; w < WHEEL_COUNT; w++)
 	{
-		dist_wheelTachomCount[w] = _wheelTachomCount[w];
+		dist_wheelEncoderCount[w] = _wheelEncoderCount[w];
 		this->_wheelAngSpeed[w] = 0;
 		this->_wheelSetAngSpeed[w] = 0;
 	}
 }
+
+#endif

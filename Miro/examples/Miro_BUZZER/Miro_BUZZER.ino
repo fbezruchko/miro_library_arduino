@@ -1,5 +1,5 @@
 // даём имя для пина с пьезоизлучателем (англ. buzzer)
-#define BUZZER_PIN 8
+#define BUZZER_PIN 11
 
 void setup()
 {

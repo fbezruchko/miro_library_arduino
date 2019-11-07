@@ -1,9 +1,9 @@
 #include "CommLgcSerial.h"
-#include "Miro.h"
 
-using namespace miro;
+#include "config.h"
+#include <Miro.h>
 
-#define CHASSIS_W_ENCODERS 1
+//using namespace miro;
 
 char inputString[RXBUFFERSIZE];      // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
@@ -58,6 +58,34 @@ int CommLgcSerial::parse(char *str)
 /************************************************************************/
 /************************************************************************/
 /************************************************************************/
+
+//========================================== printWheelTable
+
+void CommLgcSerial::printWheelTable()
+{
+  Serial.println(F("MOTORS CALIBRATION TABLE"));
+  for (byte w = 0; w < WHEEL_COUNT; w++)
+  {
+    Serial.print(F("WHEEL "));
+    Serial.println(w);
+    Serial.print(F("VOLTS"));
+    Serial.print(F("   "));
+    Serial.print(F("DEG/SEC"));
+    Serial.print(F("   "));
+    Serial.println(F("BDELAYS"));
+
+    for (int i = 0; i < WHEEL_TABLE_SIZE; i++)
+    {
+      Serial.print(robot.chassis.getCalibTableValue(w, VOLTS, i));
+      Serial.print(F("   "));
+      Serial.print(robot.chassis.getCalibTableValue(w, SPEED, i));
+      Serial.print(F("   "));
+      Serial.println(robot.chassis.getCalibTableValue(w, BREAKDELAY, i));
+    }
+    Serial.println();
+  }
+  return;
+}
 
 int CommLgcSerial::miroget(char * str)
 {
@@ -133,7 +161,7 @@ int CommLgcSerial::miroget(char * str)
     Serial.print(F("Device = "));
     Serial.print(device);
     Serial.println();
-    const int count = robot.GetDeviceByIndex(device)->GetParamCount();
+    const int count = robot.getDeviceByIndex(device)->GetParamCount();
 
     //==============================================================
 
@@ -148,35 +176,35 @@ int CommLgcSerial::miroget(char * str)
       return -1;
     }
 
-    Serial.print(robot.GetDeviceByIndex(device)->GetName());
+    Serial.print(robot.getDeviceByIndex(device)->GetName());
     Serial.print(F(" parameter "));
     Serial.print(paramN);
     Serial.print(F(" value = "));
-    if (!strcmp("LED", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("LED", robot.getDeviceByIndex(device)->GetName()))
     {
       byte valueN;
-      robot.GetDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("USONIC", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->GetName()))
     {
       int valueN;
-      robot.GetDeviceByIndex(device)->GetParam(paramN, (byte*)&valueN);
+      robot.getDeviceByIndex(device)->GetParam(paramN, (byte*)&valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("LDR", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("LDR", robot.getDeviceByIndex(device)->GetName()))
     {
       byte valueN;
-      robot.GetDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("LINE", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("LINE", robot.getDeviceByIndex(device)->GetName()))
     {
       byte valueN;
-      robot.GetDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
@@ -220,13 +248,13 @@ int CommLgcSerial::miroset(char * str)
       Serial.print(F("Speed = "));
       Serial.print(angular_speed);
       Serial.println();
-      if (robot.Rotate(angular_speed))
+      if (robot.rotate(angular_speed))
       {
         Serial.println(F("ERROR"));
         Serial.print(F("Robot angular speed (degrees/s) must be between "));
-        Serial.print(robot.chassis.getMinAngSpeed());
+        Serial.print(robot.getMinAngSpeed());
         Serial.print(F(" and "));
-        Serial.print(robot.chassis.getMaxAngSpeed());
+        Serial.print(robot.getMaxAngSpeed());
         Serial.println();
       }
       return 0;
@@ -239,13 +267,13 @@ int CommLgcSerial::miroset(char * str)
     Serial.print(F(" | Angle = "));
     Serial.print(angle);
     Serial.println();
-    if (robot.RotateAng(angular_speed, angle, true))
+    if (robot.rotateAng(angular_speed, angle, true))
     {
       Serial.println(F("ERROR"));
       Serial.print(F("Robot angular speed (degrees/s) must be between "));
-      Serial.print(robot.chassis.getMinAngSpeed());
+      Serial.print(robot.getMinAngSpeed());
       Serial.print(F(" and "));
-      Serial.print(robot.chassis.getMaxAngSpeed());
+      Serial.print(robot.getMaxAngSpeed());
       Serial.println();
     }
     return 0;
@@ -279,13 +307,13 @@ int CommLgcSerial::miroset(char * str)
       Serial.print(F(" | A_speed = "));
       Serial.print(angular_speed);
       Serial.println();
-      if (robot.Move(linear_speed, angular_speed))
+      if (robot.move(linear_speed, angular_speed))
       {
         Serial.println(F("ERROR"));
         Serial.print(F("Robot linear speed (m/s) must be between "));
-        Serial.print(robot.chassis.getMinLinSpeed());
+        Serial.print(robot.getMinLinSpeed());
         Serial.print(F(" and "));
-        Serial.print(robot.chassis.getMaxLinSpeed());
+        Serial.print(robot.getMaxLinSpeed());
         Serial.println();
       }
       return 0;
@@ -299,13 +327,13 @@ int CommLgcSerial::miroset(char * str)
     Serial.print(F(" | distance = "));
     Serial.print(distance);
     Serial.println();
-    if (robot.MoveDist(linear_speed, angular_speed, distance, true))
+    if (robot.moveDist(linear_speed, angular_speed, distance, true))
     {
       Serial.println(F("ERROR"));
       Serial.print(F("Robot linear speed (m/s) must be between "));
-      Serial.print(robot.chassis.getMinLinSpeed());
+      Serial.print(robot.getMinLinSpeed());
       Serial.print(F(" and "));
-      Serial.print(robot.chassis.getMaxLinSpeed());
+      Serial.print(robot.getMaxLinSpeed());
       Serial.println();
     }
     return 0;
@@ -325,7 +353,7 @@ int CommLgcSerial::miroset(char * str)
       Serial.println(F(">>>UNKNOWN DEVICE INDEX"));
       return -1;
     }
-    const int count = robot.GetDeviceByIndex(device)->GetParamCount();
+    const int count = robot.getDeviceByIndex(device)->GetParamCount();
 
     //==============================================================
 
@@ -348,29 +376,29 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    Serial.print(robot.GetDeviceByIndex(device)->GetName());
+    Serial.print(robot.getDeviceByIndex(device)->GetName());
     Serial.print(F(" parameter "));
     Serial.print(paramN);
     Serial.print(F(" value = "));
-    if (!strcmp("LED", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("LED", robot.getDeviceByIndex(device)->GetName()))
     {
 
       byte valueN = atof(istr);
-      robot.GetDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("USONIC", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->GetName()))
     {
       byte valueN = atof(istr);
-      robot.GetDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("SERVO", robot.GetDeviceByIndex(device)->GetName()))
+    if (!strcmp("SERVO", robot.getDeviceByIndex(device)->GetName()))
     {
       byte valueN = atof(istr);
-      robot.GetDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
@@ -386,11 +414,11 @@ int CommLgcSerial::miroset(char * str)
 int CommLgcSerial::mirodevtable(char * str)
 {
   Serial.println(F(">>>MIRODEVTABLE CALL"));
-  for (int i = 0; i < robot.GetDeviceCount(); i++)
+  for (int i = 0; i < robot.getDeviceCount(); i++)
   {
     Serial.print(i);
     Serial.print(F("   -   "));
-    Serial.print(robot.GetDeviceByIndex(i)->GetName());
+    Serial.print(robot.getDeviceByIndex(i)->GetName());
     Serial.println();
   }
   return 0;
@@ -413,14 +441,14 @@ int CommLgcSerial::mirocalibwheel(char * str)
     return -1;
   }
   robot.chassis.wheelCalibrate(wheel);
-  robot.chassis.printWheelTable();
+  this->printWheelTable();
   return 0;
 }
 
 int CommLgcSerial::mirowheeltable(char * str)
 {
   Serial.println(F("MIRO: mirowheeltable running..."));
-  robot.chassis.printWheelTable();
+  this->printWheelTable();
   return 0;
 }
 

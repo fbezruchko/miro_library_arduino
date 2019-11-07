@@ -5,14 +5,15 @@
 #include <MIROServo.h>
 #include <Miro.h>
 
-using namespace miro;
+//using namespace miro;
 
 #define MODE_DEFALT 0
 #define MODE_LDR_FOLLOW 1
 
 byte PWM_pins[2] = { 5, 6 };
 byte DIR_pins[2] = { 4, 7 };
-Miro robot(PWM_pins, DIR_pins);
+byte ENCODER_pins[2] = { 2, 3 };
+Miro robot(PWM_pins, DIR_pins, ENCODER_pins);
 
 MIROLed robot_Led_L;
 MIROLed robot_Led_R;
@@ -174,15 +175,15 @@ void mode_line_test()
 void mode_motor_test()
 {
   Serial.print(F("Move forward (m/s): "));
-  Serial.print(robot.chassis.getOptLinSpeed()-0.1, 2);
+  Serial.print(robot.getOptLinSpeed()-0.1, 2);
   Serial.println();
-  robot.MoveDist(robot.chassis.getOptLinSpeed()-0.1, 0, 1, false);
+  robot.moveDist(robot.getOptLinSpeed()-0.1, 0, 1, false);
   delay(500);
   
   Serial.print(F("Move backward (m/s): "));
-  Serial.print(-(robot.chassis.getOptLinSpeed()-0.1), 2);
+  Serial.print(-(robot.getOptLinSpeed()-0.1), 2);
   Serial.println();
-  robot.MoveDist(-(robot.chassis.getOptLinSpeed()-0.1), 0, 1, false);
+  robot.moveDist(-(robot.getOptLinSpeed()-0.1), 0, 1, false);
   delay(500);
 }
 

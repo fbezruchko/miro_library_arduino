@@ -7,7 +7,7 @@
 #include "WProgram.h"
 #endif
 
-namespace miro {
+//namespace miro {
 
 class Device
 {
@@ -23,6 +23,6 @@ protected:
 	byte *pins[2]; //Массив пинов. Первый байт определяет номер пина, второй - тип (INPUT/OUTPUT)
 };
 
-} //end namespace
+//} //end namespace
 
 #endif

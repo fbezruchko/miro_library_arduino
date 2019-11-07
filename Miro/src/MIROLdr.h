@@ -1,6 +1,6 @@
 #include "Device.h"
 
-namespace miro {
+//namespace miro {
 
 class MIROLdr : virtual public Device {
 public:
@@ -15,4 +15,4 @@ public:
 	int getValue();
 };
 
-} //end namespace
+//} //end namespace

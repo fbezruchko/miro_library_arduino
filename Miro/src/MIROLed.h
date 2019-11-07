@@ -1,6 +1,6 @@
 #include "Device.h"
 
-namespace miro {
+//namespace miro {
 
 class MIROLed : virtual public Device {
 public:
@@ -19,4 +19,4 @@ private:
     byte value;
 };
 
-}
+//}

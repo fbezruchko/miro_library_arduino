@@ -8,7 +8,7 @@
 #define LED_PCOUNT 1
 #define LED_VALUE 1
 
-using namespace miro;
+//using namespace miro;
 
 const char _const_dev_name[] = "LED";
 

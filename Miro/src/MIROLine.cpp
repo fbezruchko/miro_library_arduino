@@ -8,7 +8,7 @@
 #define LINE_PCOUNT 1
 #define LINE_VALUE 1
 
-using namespace miro;
+//using namespace miro;
 
 const char _const_dev_name[] = "LINE";
 

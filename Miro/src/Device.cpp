@@ -1,6 +1,6 @@
 #include "Device.h"
 
-using namespace miro;
+//using namespace miro;
 
 void Device::Sync()
 {

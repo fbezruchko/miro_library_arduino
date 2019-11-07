@@ -1,7 +1,7 @@
 #include "Device.h"
 #include <Servo.h>
 
-namespace miro {
+//namespace miro {
 
 class MIROServo : virtual public Device {
 public:
@@ -22,4 +22,4 @@ private:
 	byte _max_value;
 };
 
-}
+//}

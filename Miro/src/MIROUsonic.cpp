@@ -14,7 +14,7 @@
 
 #define MAX_DIST 4000 //4 метра
 
-using namespace miro;
+//using namespace miro;
 
 const char _const_dev_name[] = "USONIC";
 

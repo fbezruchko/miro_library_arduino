@@ -8,7 +8,7 @@
 #define SERVO_PCOUNT 1
 #define SERVO_VALUE 1
 
-using namespace miro;
+//using namespace miro;
 
 const char _const_dev_name[] = "SERVO";
 

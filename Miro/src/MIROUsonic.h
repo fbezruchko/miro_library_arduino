@@ -1,6 +1,6 @@
 #include "Device.h"
 
-namespace miro {
+//namespace miro {
 
 class MIROUsonic : virtual public Device {
 public:
@@ -25,4 +25,4 @@ private:
 	unsigned int _max_dist;
 };
 
-} //end namespace
+//} //end namespace
