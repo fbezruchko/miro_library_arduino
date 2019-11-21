@@ -11,7 +11,7 @@
 #include "default_config.h"
 #include "Chassis_IRQ.h"
 
-//namespace miro {
+namespace miro {
 
 class Chassis {
 public:
@@ -19,7 +19,7 @@ public:
 	Chassis(byte *PWM_pins, byte *DIR_pins);
 #if defined(ENCODERS_ON)	
 	Chassis(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
-#endif
+#endif // ENCODERS_ON
 	~Chassis();
 	
 	void Sync();
@@ -57,7 +57,7 @@ public:
 	*/
 	void wheelCalibrate(byte wheel);
 	
-	float getCalibTableValue(byte wheel, byte parameter, byte record);
+	int getWheelTableValue(byte wheel, byte parameter, byte record);
 
 	/*
 	Synchronous rotation of the wheels. IMPORTANT FUNCTION!
@@ -90,7 +90,7 @@ public:
 	/*Returns the linear velocity of the wheel axis (m / s)*/
 	float wheelGetLinSpeed(byte wheel) { return MIRO_PI * this->_wheelAngSpeed[wheel] * WHEEL_RADIUS / 180.0; }
 	
-#endif //ENCODERS_ON
+#endif // ENCODERS_ON
 
 private:
 
@@ -108,7 +108,6 @@ private:
 	byte _wheel_ENCODER_pins[WHEEL_COUNT];
 	bool _wheel_sync_move;
 	
-	float _calib_wheel_table[WHEEL_COUNT][3][WHEEL_TABLE_SIZE];
 	float _wheelAngSpeed[WHEEL_COUNT];
 
 	float _wheelSetAng[WHEEL_COUNT];
@@ -117,17 +116,16 @@ private:
 	unsigned long _wheelLastSync[WHEEL_COUNT];
 
 //==========================================
-	void _wheel_rotate(byte wheel);
 	void _wheel_rotate_sync(bool en_break);
 	
-	int _eepromReadWheelTable(byte wheel, float *table);
-	int _eepromWriteWheelTable(byte wheel, float *table);
+	int _eepromReadWheelTable(byte wheel, int *table);
+	int _eepromWriteWheelTable(byte wheel, int *table);
 	
 	int _wheelGetU(float ang_speed, int wheel, float volts);
 	int _wheelGetBDelay(float ang_speed, int wheel);
 	
-#endif //ENCODERS_ON
+#endif // ENCODERS_ON
 
 };
 
-//} // end namespace
+} // end namespace

@@ -21,9 +21,9 @@ void MIROLed::Init(byte pin)
 	pinMode(pin, OUTPUT);
 }
 
-byte MIROLed::GetPinsCount() { return LED_PINS_COUNT; };
-char* MIROLed::GetName() { return _const_dev_name; }
-byte MIROLed::GetParamCount() { return LED_PCOUNT; }
+byte MIROLed::getPinsCount() { return LED_PINS_COUNT; };
+char* MIROLed::getName() { return _const_dev_name; }
+byte MIROLed::getParamCount() { return LED_PCOUNT; }
 
 void MIROLed::On(byte value)
 {
@@ -40,7 +40,7 @@ void MIROLed::Off()
 	digitalWrite(this->pins[NUM][0], LOW);
 }
 
-void MIROLed::SetParam(byte pnum, byte *pvalue)
+void MIROLed::setParam(byte pnum, byte *pvalue)
 {
     if (pnum == LED_VALUE)
 	{
@@ -49,7 +49,7 @@ void MIROLed::SetParam(byte pnum, byte *pvalue)
 	}
 }
 
-void MIROLed::GetParam(byte pnum, byte *pvalue)
+void MIROLed::getParam(byte pnum, byte *pvalue)
 {
     if (pnum == LED_VALUE)  *pvalue = this->value;
 }

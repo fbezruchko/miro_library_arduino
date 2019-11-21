@@ -1,18 +1,21 @@
 #include <Miro.h>
 
-Miro robot;
+byte PWM_pins[2] = { 5, 6 };
+byte DIR_pins[2] = { 4, 7 };
+byte ENCODER_pins[2] = { 2, 3 };
+Miro robot(PWM_pins, DIR_pins, ENCODER_pins);
 
 void setup() {
   // put your setup code here, to run once:
-  delay(1000);
-  Serial.begin(9600);
-  robot.Init();
+  Serial.begin(115200);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  unsigned long lcount = robot.chassis.wheelGetTachom(LEFT);
-  unsigned long rcount = robot.chassis.wheelGetTachom(RIGHT);
+  robot.move(robot.getOptLinSpeed(), 0);
+  
+  unsigned long lcount = robot.chassis.wheelGetEncoder(LEFT);
+  unsigned long rcount = robot.chassis.wheelGetEncoder(RIGHT);
 
   Serial.print("Left odometry sensor: ");
   Serial.println(lcount);
@@ -22,6 +25,5 @@ void loop() {
 
   Serial.println();
   
-
-  delay(250);
+  robot.Sync();
 }

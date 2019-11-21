@@ -3,7 +3,7 @@
 #include "config.h"
 #include <Miro.h>
 
-//using namespace miro;
+using namespace miro;
 
 char inputString[RXBUFFERSIZE];      // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
@@ -74,13 +74,13 @@ void CommLgcSerial::printWheelTable()
     Serial.print(F("   "));
     Serial.println(F("BDELAYS"));
 
-    for (int i = 0; i < WHEEL_TABLE_SIZE; i++)
+    for (byte i = 0; i < WHEEL_TABLE_SIZE; i++)
     {
-      Serial.print(robot.chassis.getCalibTableValue(w, VOLTS, i));
+      Serial.print(robot.chassis.getWheelTableValue(w, VOLTS, i));
       Serial.print(F("   "));
-      Serial.print(robot.chassis.getCalibTableValue(w, SPEED, i));
+      Serial.print(robot.chassis.getWheelTableValue(w, SPEED, i));
       Serial.print(F("   "));
-      Serial.println(robot.chassis.getCalibTableValue(w, BREAKDELAY, i));
+      Serial.println(robot.chassis.getWheelTableValue(w, BREAKDELAY, i));
     }
     Serial.println();
   }
@@ -161,7 +161,7 @@ int CommLgcSerial::miroget(char * str)
     Serial.print(F("Device = "));
     Serial.print(device);
     Serial.println();
-    const int count = robot.getDeviceByIndex(device)->GetParamCount();
+    const int count = robot.getDeviceByIndex(device)->getParamCount();
 
     //==============================================================
 
@@ -176,35 +176,35 @@ int CommLgcSerial::miroget(char * str)
       return -1;
     }
 
-    Serial.print(robot.getDeviceByIndex(device)->GetName());
+    Serial.print(robot.getDeviceByIndex(device)->getName());
     Serial.print(F(" parameter "));
     Serial.print(paramN);
     Serial.print(F(" value = "));
-    if (!strcmp("LED", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("LED", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN;
-      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->getParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->getName()))
     {
       int valueN;
-      robot.getDeviceByIndex(device)->GetParam(paramN, (byte*)&valueN);
+      robot.getDeviceByIndex(device)->getParam(paramN, (byte*)&valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("LDR", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("LDR", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN;
-      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->getParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("LINE", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("LINE", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN;
-      robot.getDeviceByIndex(device)->GetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->getParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
@@ -353,7 +353,7 @@ int CommLgcSerial::miroset(char * str)
       Serial.println(F(">>>UNKNOWN DEVICE INDEX"));
       return -1;
     }
-    const int count = robot.getDeviceByIndex(device)->GetParamCount();
+    const int count = robot.getDeviceByIndex(device)->getParamCount();
 
     //==============================================================
 
@@ -376,29 +376,29 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    Serial.print(robot.getDeviceByIndex(device)->GetName());
+    Serial.print(robot.getDeviceByIndex(device)->getName());
     Serial.print(F(" parameter "));
     Serial.print(paramN);
     Serial.print(F(" value = "));
-    if (!strcmp("LED", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("LED", robot.getDeviceByIndex(device)->getName()))
     {
 
       byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
-    if (!strcmp("SERVO", robot.getDeviceByIndex(device)->GetName()))
+    if (!strcmp("SERVO", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->SetParam(paramN, &valueN);
+      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
       Serial.print((int)valueN);
     }
 
@@ -418,7 +418,7 @@ int CommLgcSerial::mirodevtable(char * str)
   {
     Serial.print(i);
     Serial.print(F("   -   "));
-    Serial.print(robot.getDeviceByIndex(i)->GetName());
+    Serial.print(robot.getDeviceByIndex(i)->getName());
     Serial.println();
   }
   return 0;

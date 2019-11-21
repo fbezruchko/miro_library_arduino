@@ -7,15 +7,15 @@
 
 class CommLgcSerial {
   public:
-  void handle();
-  void begin();
+    void handle();
+    void begin();
 
   private:
     int parse(char *str);
 
     int miroget(char *str);
     int miroset(char *str);
-    
+
     int mirodevtable(char *str);
     int mirocalibwheel(char *str);
     int mirowheeltable(char * str);

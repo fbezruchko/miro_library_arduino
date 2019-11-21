@@ -21,11 +21,11 @@ void MIROLine::Init(byte pin)
 	pinMode(pin, INPUT);
 }
 
-byte MIROLine::GetPinsCount() { return LINE_PINS_COUNT; };
-char* MIROLine::GetName() { return _const_dev_name; }
-byte MIROLine::GetParamCount() { return LINE_PCOUNT; }
+byte MIROLine::getPinsCount() { return LINE_PINS_COUNT; };
+char* MIROLine::getName() { return _const_dev_name; }
+byte MIROLine::getParamCount() { return LINE_PCOUNT; }
 
-void MIROLine::GetParam(byte pnum, byte *pvalue)
+void MIROLine::getParam(byte pnum, byte *pvalue)
 {
 	if (pnum == LINE_VALUE)  *((int*)pvalue) = this->getValue();
 }

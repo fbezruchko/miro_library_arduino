@@ -13,14 +13,14 @@ class Device
 {
 public:
 	virtual void Sync();
-	virtual void SetParam(byte pnum, byte *pvalue);
-    virtual void GetParam(byte pnum, byte *pvalue);
-	virtual byte GetPinsCount();
-	virtual char* GetName();
-	virtual byte GetParamCount();
+	virtual void setParam(byte pnum, byte *pvalue);
+    virtual void getParam(byte pnum, byte *pvalue);
+	virtual byte getPinsCount();
+	virtual char* getName();
+	virtual byte getParamCount();
 
 protected:	
-	byte *pins[2]; //Массив пинов. Первый байт определяет номер пина, второй - тип (INPUT/OUTPUT)
+	byte *pins[2]; //Pins array. First byte - pin number, second byte - type of the pin (INPUT/OUTPUT)
 };
 
 //} //end namespace

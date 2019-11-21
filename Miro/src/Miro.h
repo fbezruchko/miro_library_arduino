@@ -8,7 +8,9 @@
 #include "config.h"
 #include "default_config.h"
 
-//namespace miro {
+#include <avr/pgmspace.h>
+
+namespace miro {
 
 const char MIRO_VERSION[] = "v1.0.0";
 
@@ -18,19 +20,19 @@ public:
 	Miro(byte *PWM_pins, byte *DIR_pins);
 #if defined(ENCODERS_ON)
 	Miro(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
-#endif
+#endif  // ENCODERS_ON
 	~Miro();
 	
-	/*движение робота с прямым управлением PWM.
-	PWM_lin_speed - значение PWM, задающего линейную скорость робота [-255..255],
-	PWM_ang_speed - разница в значениях PWM, определяющих угловую скорость робота [-255..255],
-	time - время воздействия сигнала PWM (millis),
+	/*robot movement with simple PWM control and time contraint.
+	PWM_lin_speed - PWM value [-255..255],
+	PWM_ang_speed - PWM values different [-255..255] (_wheelSetPWM[LEFT] = PWM_lin_speed - PWM_angle_speed / 2; and _wheelSetPWM[RIGHT] = PWM_lin_speed + PWM_angle_speed / 2;),
+	time - time of movement (millis).
 	*/
 	int movePWMTime(int PWM_lin_speed, int PWM_angle_speed, unsigned long time);
 	
-	/*движение робота с прямым управлением PWM.
-	PWM_lin_speed - значение PWM, задающего линейную скорость робота [-255..255],
-	PWM_ang_speed - разница в значениях PWM, определяющих угловую скорость робота [-255..255],
+	/*robot movement with simple PWM control
+	PWM_lin_speed - PWM value [-255..255],
+	PWM_ang_speed - PWM values different [-255..255] (_wheelSetPWM[LEFT] = PWM_lin_speed - PWM_angle_speed / 2; and _wheelSetPWM[RIGHT] = PWM_lin_speed + PWM_angle_speed / 2;),
 	*/
 	int movePWM(int PWM_lin_speed, int PWM_angle_speed);
 	
@@ -38,41 +40,43 @@ public:
 	int rotatePWM(int PWM_speed);
 
 #if defined(ENCODERS_ON)
-	/*движение робота.
-	lin_speed - линейная скорость робота (м/с),
-	ang_speed - угловая скорость робота (град/сек),
-	dist - длина пути, которую нужно преодолеть роботу (м),
+	/*robot movement with linear, angular speed and distance control
+	lin_speed - robot linear speed (m/s),
+	ang_speed - robot angular speed (degrees/s),
+	dist - distance (m),
+	en_break - TRUE/FALSE break in the and of distance
 	*/
-	int moveDist(float lin_speed, float ang_speed, float dist, bool en_break); //Движение робота с заданными линейной и угловыми скоростями
+	int moveDist(float lin_speed, float ang_speed, float dist, bool en_break);
 	
-	/*движение робота.
-	lin_speed - линейная скорость робота (м/с),
-	ang_speed - угловая скорость робота (град/сек),
+	/*robot movement with linear, angular speed control
+	lin_speed - robot linear speed (m/s),
+	ang_speed - robot angular speed (degrees/s),
 	*/
-	int move(float lin_speed, float ang_speed); //Движение робота с заданными линейной и угловыми скоростями
+	int move(float lin_speed, float ang_speed);
 
-	/*поворот робота на месте.
-	ang - угол поворота,
-	ang_speed - угловая скорость поворота (град/сек),
+	/*robot rotation with angular speed and angle control
+	ang - rotation angle,
+	ang_speed - robot angular speed (degrees/s),
+	en_break - TRUE/FALSE break in the and of rotation
 	*/
 	int rotateAng(float ang_speed, float ang, bool en_break);
 	
-	/*поворот робота на месте.
-	ang_speed - угловая скорость поворота (град/сек),
+	/*robot rotation with angular speed control
+	ang_speed - robot angular speed (degrees/s)
 	*/
 	int rotate(float ang_speed);
 
-	/*возвращает угловую скороть шасси (рад/сек).*/
+	/*returns robot angular speed (radians)*/
 	float getAngSpeedRad();
 
-	/*возвращает угловую скороть шасси (град/сек).*/
+	/*returns robot angular speed (degrees/s)*/
 	float getAngSpeed();
 
-	/*возвращает линейную скороть шасси (м/с).*/
+	/*returns robot linear speed (m/s).*/
 	float getLinSpeed();
 
-	/*возвращает длину пройденного шасси пути.*/
-	float getPath(); //Не реализовано нормально - при расчете учитываются повороты на месте, когда центр масс робота фактически никуда не движется
+	/*returns full path or robot from power up (m)*/
+	float getPath(); //need good implementation - current implementation consider path of robot rotation
 	
 	float getMaxLinSpeed();
 	float getOptLinSpeed();
@@ -81,7 +85,7 @@ public:
 	float getMaxAngSpeed();
 	float getOptAngSpeed();
 	float getMinAngSpeed();
-#endif
+#endif // ENCODERS_ON
 };
 
-//} // end namespace
+} // end namespace

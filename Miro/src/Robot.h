@@ -7,7 +7,7 @@
 #include "config.h"
 #include "default_config.h"
 
-//namespace miro {
+namespace miro {
 
 class Robot {
 public:
@@ -15,7 +15,7 @@ public:
 	Robot(byte *PWM_pins, byte *DIR_pins);
 #if defined(ENCODERS_ON)
 	Robot(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
-#endif
+#endif  // ENCODERS_ON
 	~Robot();
 	
 	Chassis chassis;
@@ -37,4 +37,4 @@ protected:
 	byte _device_count;
 };
 
-//} // end namespace
+} // end namespace

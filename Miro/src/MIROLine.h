@@ -4,12 +4,12 @@
 
 class MIROLine : virtual public Device {
 public:
-    void GetParam(byte bnum, byte *pvalue);	
+    void getParam(byte bnum, byte *pvalue);	
 	void Init(byte pin);
 	
-	byte GetPinsCount();
-	char* GetName();
-	byte GetParamCount();
+	byte getPinsCount();
+	char* getName();
+	byte getParamCount();
 
 	float getVoltage(float vref);
 	int getValue();

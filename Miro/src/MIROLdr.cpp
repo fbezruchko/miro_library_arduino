@@ -21,11 +21,11 @@ void MIROLdr::Init(byte pin)
 	pinMode(pin, INPUT);
 }
 
-byte MIROLdr::GetPinsCount() { return LDR_PINS_COUNT; };
-char* MIROLdr::GetName() { return _const_dev_name; }
-byte MIROLdr::GetParamCount() { return LDR_PCOUNT; }
+byte MIROLdr::getPinsCount() { return LDR_PINS_COUNT; };
+char* MIROLdr::getName() { return _const_dev_name; }
+byte MIROLdr::getParamCount() { return LDR_PCOUNT; }
 
-void MIROLdr::GetParam(byte pnum, byte *pvalue)
+void MIROLdr::getParam(byte pnum, byte *pvalue)
 {
 	if (pnum == LDR_VALUE)  *((int*)pvalue) = this->getValue();
 }

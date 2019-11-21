@@ -7,27 +7,27 @@ void Device::Sync()
 	return;
 }
 
-void Device::SetParam(byte pnum, byte *pvalue)
+void Device::setParam(byte pnum, byte *pvalue)
 {
 	return;
 }
 
-void Device::GetParam(byte pnum, byte *pvalue)
+void Device::getParam(byte pnum, byte *pvalue)
 {
 	return;
 }
 
-byte Device::GetPinsCount()
+byte Device::getPinsCount()
 {
 	return 0;
 }
 
-char* Device::GetName()
+char* Device::getName()
 {
 	return 0;
 }
 
-byte Device::GetParamCount()
+byte Device::getParamCount()
 {
 	return 0;
 }

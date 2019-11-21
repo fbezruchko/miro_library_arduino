@@ -5,11 +5,11 @@
 class MIROUsonic : virtual public Device {
 public:
 	void Sync();
-	void SetParam(byte bnum, byte *pvalue);
-    void GetParam(byte bnum, byte *pvalue);
-	byte GetPinsCount();
-	char* GetName();
-	byte GetParamCount();
+	void setParam(byte bnum, byte *pvalue);
+    void getParam(byte bnum, byte *pvalue);
+	byte getPinsCount();
+	char* getName();
+	byte getParamCount();
 	
 	void Init(byte trig_pin, byte echo_pin);
 	void On(unsigned int max_dist);

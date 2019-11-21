@@ -1,20 +1,17 @@
-#include <Led.h>
-#include <Ldr.h>
+#include <MIROLed.h>
+#include <MIROLdr.h>
 #include <Miro.h>
 
 #define LDR_TH 300
 
-Miro robot;
-Led robot_LedL;
-Led robot_LedR;
+MIROLed robot_LedL;
+MIROLed robot_LedR;
 
-Ldr robot_LdrL;
-Ldr robot_LdrR;
+MIROLdr robot_LdrL;
+MIROLdr robot_LdrR;
 
 void setup() {
   // put your setup code here, to run once:
-  robot.Init();
-  
   robot_LedL.Init(9);
   robot_LedR.Init(10);
 

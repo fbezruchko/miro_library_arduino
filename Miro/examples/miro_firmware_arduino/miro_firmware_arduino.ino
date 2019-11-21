@@ -5,7 +5,7 @@
 #include <MIROServo.h>
 #include <Miro.h>
 
-//using namespace miro;
+using namespace miro;
 
 #define MODE_DEFALT 0
 #define MODE_LDR_FOLLOW 1
@@ -144,17 +144,17 @@ void mode_us_test()
 void mode_servo_test()
 {
   Serial.print(F("SERVO [min, max] values = ["));
-  Serial.print(robot_Servo.GetMin());
+  Serial.print(robot_Servo.getMin());
   Serial.print(F(", "));
-  Serial.print(robot_Servo.GetMax());
+  Serial.print(robot_Servo.getMax());
   Serial.print(F("]"));
   Serial.println();
 
-  robot_Servo.Pos(robot_Servo.GetMin());
+  robot_Servo.Pos(robot_Servo.getMin());
   delay(100);
-  robot_Servo.Pos(robot_Servo.GetMax());
+  robot_Servo.Pos(robot_Servo.getMax());
   delay(100);
-  robot_Servo.Pos(robot_Servo.GetMin() + (robot_Servo.GetMax() - robot_Servo.GetMin()) / 2);
+  robot_Servo.Pos(robot_Servo.getMin() + (robot_Servo.getMax() - robot_Servo.getMin()) / 2);
   delay(800);
 }
 
@@ -175,15 +175,15 @@ void mode_line_test()
 void mode_motor_test()
 {
   Serial.print(F("Move forward (m/s): "));
-  Serial.print(robot.getOptLinSpeed()-0.1, 2);
+  Serial.print(robot.getOptLinSpeed() - 0.1, 2);
   Serial.println();
-  robot.moveDist(robot.getOptLinSpeed()-0.1, 0, 1, false);
+  robot.moveDist(robot.getOptLinSpeed() - 0.1, 0, 1, true);
   delay(500);
-  
+
   Serial.print(F("Move backward (m/s): "));
-  Serial.print(-(robot.getOptLinSpeed()-0.1), 2);
+  Serial.print(-(robot.getOptLinSpeed() - 0.1), 2);
   Serial.println();
-  robot.moveDist(-(robot.getOptLinSpeed()-0.1), 0, 1, false);
+  robot.moveDist(-(robot.getOptLinSpeed() - 0.1), 0, 1, true);
   delay(500);
 }
 

@@ -1,17 +1,15 @@
 #pragma once
-
-//namespace miro {
 	
 #if !defined(ENCODERS_ON)
 	//#define ENCODERS_ON
 #endif
 	
 #if !defined(ROBOT_MAX_DEVICES)
-	#define ROBOT_MAX_DEVICES 12	//Максимальное число устройств, которые можно подключить к роботу.
+	#define ROBOT_MAX_DEVICES 12	//Maximum device count, that can be connect to robot
 #endif
 
 #if !defined(PIN_VBAT)
-	#define PIN_VBAT A0	//Пин для получения напряжения батареи (ячейки 1S - до 4.2В)
+	#define PIN_VBAT A0	//Analog pin for battery voltage
 #endif
 
 #if !defined(VOLTAGE_DIVIDER)
@@ -19,31 +17,31 @@
 #endif
 
 #if !defined(WHEEL_COUNT)
-	#define WHEEL_COUNT 2	//Число ведущих колес у робота
+	#define WHEEL_COUNT 2	//Number of motorized wheels
 #endif
 
 #if !defined(ROBOT_DIAMETER)	
-	#define ROBOT_DIAMETER (0.163) //ђасстояние между левым и правым колесом (метров)
+	#define ROBOT_DIAMETER (0.163) //Distance between left and right wheels
 #endif	
 #if !defined(WHEEL_SEGMENTS)	
-	#define WHEEL_SEGMENTS (30.0) //Число сегментов маркерной линейки тахометра. Надо переделать на 18, чтобы поворот робота на 90 градусов был точнее.
+	#define WHEEL_SEGMENTS (30.0) //Count of segments on encoders disk
 #endif	
 #if !defined(WHEEL_RADIUS)	
-	#define WHEEL_RADIUS (0.0345) //Радиус колеса (метров)
+	#define WHEEL_RADIUS (0.0345) //Wheel radius (meters)
 #endif
 #if !defined(MEAN_DEPTH)
-	#define MEAN_DEPTH 8 //МОЖНО НЕ ТРОГАТЬ! Глубина фильтра измерения скорости по тахометрам (размер массива для усреднения)
+	#define MEAN_DEPTH 8 //Wheel speed filter depth (array size)
 #endif	
 
-/*Это оценочные значения, применяемые только при калибровке.*/
+/*This is approximate values used during wheel calibration process only.*/
 #if !defined(WHEEL_ANGLE_SPEED_MAX)
-	#define WHEEL_ANGLE_SPEED_MAX (1500) //Максимальная угловая скорость вращения колес, которую могут развить двиагтели (град/сек). Выше этой сокрости колеса крутиться не могут
+	#define WHEEL_ANGLE_SPEED_MAX (1500) //Maximum wheel angle speed (degrees/sec)
 #endif
 #if !defined(WHEEL_ANGLE_SPEED_MIN)
-	#define WHEEL_ANGLE_SPEED_MIN (100) //Минимальная угловая скорость вращения колес (град/сек). Ниже этой сокрости колеса крутиться не могут
+	#define WHEEL_ANGLE_SPEED_MIN (100) //Maximum wheel angle speed (degrees/sec)
 #endif	
 #if !defined(MAX_WHEEL_BREAK_DELAY)
-	#define MAX_WHEEL_BREAK_DELAY (60)
+	#define MAX_WHEEL_BREAK_DELAY (60)	//Maximum wheel break delay (milis)
 #endif
 
 #if !defined(EEPROM_WHEEL_TABLE_ADDR)
@@ -53,9 +51,10 @@
 	#define WHEEL_TABLE_SIZE (10)
 #endif
 
-//#define DEFAULT_PID_Kp (0.0192) //0.039 - 2,5с период колебаний
 #if !defined (DEFAULT_PID_Kp)
-	#define DEFAULT_PID_Kp (0.03)
+	#define DEFAULT_PID_Kp (0.015)
 #endif
 
-//} // end namespace
+#if !defined (DEFAULT_PID_Kd)
+	#define DEFAULT_PID_Kd (0.127)
+#endif

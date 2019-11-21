@@ -1,7 +1,7 @@
 #include "Miro.h"
 #include "defs.h"
 
-//using namespace miro;
+using namespace miro;
 
 //========================================== C
 Miro::Miro(byte *PWM_pins, byte *DIR_pins) : Robot(PWM_pins, DIR_pins)
@@ -162,10 +162,10 @@ float Miro::getPath() { return ((this->chassis.wheelGetPath(RIGHT) + this->chass
 //========================================== getMaxLinSpeed
 float Miro::getMaxLinSpeed()
 {
-	unsigned long min_wheel_speed_max = this->chassis.getCalibTableValue(0, SPEED, WHEEL_TABLE_SIZE - 1);
-	for (byte w = 0; w < WHEEL_COUNT; w++)
+	unsigned long min_wheel_speed_max = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE - 1);
+	for (char w = 0; w < WHEEL_COUNT; w++)
 	{
-		if (this->chassis.getCalibTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1) < min_wheel_speed_max) min_wheel_speed_max = this->chassis.getCalibTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1);
+		if (this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1) < min_wheel_speed_max) min_wheel_speed_max = this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1);
 	}
 	return (min_wheel_speed_max / 180.0) * MIRO_PI * WHEEL_RADIUS;
 }
@@ -173,10 +173,10 @@ float Miro::getMaxLinSpeed()
 //========================================== getMinLinSpeed
 float Miro::getMinLinSpeed()
 {
-	unsigned long min_wheel_speed_min = this->chassis.getCalibTableValue(0, SPEED, 0);
-	for (byte w = 0; w < WHEEL_COUNT; w++)
+	unsigned long min_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, 0);
+	for (char w = 0; w < WHEEL_COUNT; w++)
 	{
-		if (this->chassis.getCalibTableValue(w, SPEED, 0) > min_wheel_speed_min) min_wheel_speed_min = this->chassis.getCalibTableValue(w, SPEED, 0);
+		if (this->chassis.getWheelTableValue(w, SPEED, 0) > min_wheel_speed_min) min_wheel_speed_min = this->chassis.getWheelTableValue(w, SPEED, 0);
 	}
 	return (min_wheel_speed_min / 180.0) * MIRO_PI * WHEEL_RADIUS;
 }
@@ -184,10 +184,10 @@ float Miro::getMinLinSpeed()
 //========================================== getOptLinSpeed
 float Miro::getOptLinSpeed()
 {
-	unsigned long opt_wheel_speed_min = this->chassis.getCalibTableValue(0, SPEED, WHEEL_TABLE_SIZE/2);
-	for (byte w = 0; w < WHEEL_COUNT; w++)
+	unsigned long opt_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE/2);
+	for (char w = 0; w < WHEEL_COUNT; w++)
 	{
-		if (this->chassis.getCalibTableValue(w, SPEED, WHEEL_TABLE_SIZE/2) < opt_wheel_speed_min) opt_wheel_speed_min = this->chassis.getCalibTableValue(w, SPEED, WHEEL_TABLE_SIZE/2);
+		if (this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2) < opt_wheel_speed_min) opt_wheel_speed_min = this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2);
 	}
 	return (opt_wheel_speed_min / 180.0) * MIRO_PI * WHEEL_RADIUS;
 }
@@ -210,4 +210,4 @@ float Miro::getOptAngSpeed()
 	return (2 * MIRO_PI2ANG * (this->getOptLinSpeed()) / ROBOT_DIAMETER);
 }
 
-#endif
+#endif // ENCODERS_ON

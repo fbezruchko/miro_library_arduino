@@ -1,6 +1,6 @@
 #include "Robot.h"
 
-//using namespace miro;
+using namespace miro;
 
 //========================================== C
 Robot::Robot(byte *PWM_pins, byte *DIR_pins) : chassis(PWM_pins, DIR_pins)
@@ -14,7 +14,7 @@ Robot::Robot(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins) : chassis(PWM_p
 {
 	this->_device_count = 0;
 }
-#endif
+#endif // ENCODERS_ON
 
 //========================================== D
 Robot::~Robot()
@@ -25,7 +25,7 @@ Robot::~Robot()
 void Robot::Sync()
 {
 	this->chassis.Sync();
-	for (byte i = 0; i < this->_device_count; i++) this->_devices[i]->Sync();
+	for (char i = this->_device_count-1; i >= 0; --i) this->_devices[i]->Sync();
 }
 
 //========================================== attachDevice
@@ -45,12 +45,12 @@ int Robot::dettachDevice(Device *dev)
 {
 	if (dev == nullptr) return -1;
 
-	for (byte d = 0; d < this->_device_count; d++)
+	for (char d = this->_device_count-1; d >= 0; --d)
 	{
 		if (this->_devices[d] == dev) return this->dettachDevice(d);
 	}
 
-	return -2; //Такого устройства нет среди подключенных к роботу
+	return -2; // Device not found
 }
 
 //========================================== dettachDevice
@@ -58,7 +58,7 @@ int Robot::dettachDevice(byte DeviceIndex)
 {
 	if (DeviceIndex > this->_device_count) return -2;
 
-	for (byte d = DeviceIndex; d < this->_device_count; d++) this->_devices[d] = this->_devices[d + 1];
+	for (char d = DeviceIndex; d < this->_device_count; d++) this->_devices[d] = this->_devices[d + 1];
 	
 	this->_device_count--;
 

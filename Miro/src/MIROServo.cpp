@@ -29,9 +29,9 @@ void MIROServo::Init(byte pin, byte min_value, byte max_value)
 	this->servo0.write(min_value+(max_value - min_value)/2);
 }
 
-byte MIROServo::GetPinsCount() { return SERVO_PINS_COUNT; };
-char* MIROServo::GetName() { return _const_dev_name; }
-byte MIROServo::GetParamCount() { return SERVO_PCOUNT; }
+byte MIROServo::getPinsCount() { return SERVO_PINS_COUNT; };
+char* MIROServo::getName() { return _const_dev_name; }
+byte MIROServo::getParamCount() { return SERVO_PCOUNT; }
 
 int MIROServo::Pos(byte value)
 {
@@ -40,12 +40,12 @@ int MIROServo::Pos(byte value)
 	return 0;
 }
 
-void MIROServo::SetParam(byte pnum, byte *pvalue)
+void MIROServo::setParam(byte pnum, byte *pvalue)
 {
     if (pnum == SERVO_VALUE) this->Pos(*pvalue);
 }
 
-void MIROServo::GetParam(byte pnum, byte *pvalue)
+void MIROServo::getParam(byte pnum, byte *pvalue)
 {
     if (pnum == SERVO_VALUE)  *pvalue = this->servo0.read();
 }

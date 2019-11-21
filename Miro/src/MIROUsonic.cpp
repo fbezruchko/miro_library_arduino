@@ -37,9 +37,9 @@ void MIROUsonic::Init(byte trig_pin, byte echo_pin)
 	this->_isOn = false;
 }
 
-byte MIROUsonic::GetPinsCount() { return USONIC_PINS_COUNT; }
-char* MIROUsonic::GetName() { return _const_dev_name; }
-byte MIROUsonic::GetParamCount() { return USONIC_PCOUNT; }
+byte MIROUsonic::getPinsCount() { return USONIC_PINS_COUNT; }
+char* MIROUsonic::getName() { return _const_dev_name; }
+byte MIROUsonic::getParamCount() { return USONIC_PCOUNT; }
 
 void MIROUsonic::On(unsigned int max_dist)
 {
@@ -58,12 +58,12 @@ void MIROUsonic::Off()
 	this->_isOn = false;
 }
 
-void MIROUsonic::SetParam(byte pnum, byte *pvalue)
+void MIROUsonic::setParam(byte pnum, byte *pvalue)
 {
     if (pnum == USONIC_STATE) this->_isOn = (bool)(*pvalue);
 }
 
-void MIROUsonic::GetParam(byte pnum, byte *pvalue)
+void MIROUsonic::getParam(byte pnum, byte *pvalue)
 {
     if (pnum == USONIC_STATE)  *pvalue = this->_isOn;
 	if (pnum == USONIC_VALUE)  *((int*)pvalue) = this->getDist(MAX_DIST);

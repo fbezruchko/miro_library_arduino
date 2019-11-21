@@ -1,14 +1,10 @@
-#include <Led.h>
-#include <Miro.h>
+#include <MIROLed.h>
 
-Miro robot;
-Led robot_LedL;
-Led robot_LedR;
+MIROLed robot_Led_L;
+MIROLed robot_Led_R;
 
 void setup() {
-  // put your setup code here, to run once:
-  robot.Init();
-  
+  // put your setup code here, to run once:  
   robot_LedL.Init(9);
   robot_LedR.Init(10);
 }
