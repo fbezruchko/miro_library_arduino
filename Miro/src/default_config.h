@@ -44,6 +44,10 @@
 	#define MAX_WHEEL_BREAK_DELAY (60)	//Maximum wheel break delay (milis)
 #endif
 
+#if !defined(WHEEL_BREAK_DELAY_MULT)
+	#define WHEEL_BREAK_DELAY_MULT (2.0)	//Break delay from wheel table multipier
+#endif
+
 #if !defined(EEPROM_WHEEL_TABLE_ADDR)
 	#define EEPROM_WHEEL_TABLE_ADDR 0
 #endif

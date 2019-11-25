@@ -22,7 +22,7 @@ public:
 	
 	void Sync();
 
-	/*подключение устройства к роботу*/
+	/*connect device to robot*/
 	int attachDevice(Device *dev);
 
 	int dettachDevice(Device *dev);

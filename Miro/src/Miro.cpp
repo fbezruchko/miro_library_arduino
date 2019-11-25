@@ -110,8 +110,8 @@ int Miro::move(float lin_speed, float ang_speed)
 int Miro::rotateAng(float ang_speed, float ang, bool en_break)
 {
 	float _wheelSetAngSpeed[WHEEL_COUNT];
-	_wheelSetAngSpeed[LEFT] = -MIRO_PI2ANG * ((ROBOT_DIAMETER * ang_speed / (2 * MIRO_PI2ANG))) / WHEEL_RADIUS;
-	_wheelSetAngSpeed[RIGHT] = MIRO_PI2ANG * ((ROBOT_DIAMETER * ang_speed / (2 * MIRO_PI2ANG))) / WHEEL_RADIUS;
+	_wheelSetAngSpeed[LEFT] = -(ROBOT_DIAMETER * ang_speed) / (2.0 * WHEEL_RADIUS);
+	_wheelSetAngSpeed[RIGHT] = (ROBOT_DIAMETER * ang_speed) / (2.0 * WHEEL_RADIUS);
 
 	float _wheelSetAng[WHEEL_COUNT];
 	_wheelSetAng[RIGHT] = (ROBOT_DIAMETER * ang) / (2.0 * WHEEL_RADIUS);
@@ -184,7 +184,7 @@ float Miro::getMinLinSpeed()
 //========================================== getOptLinSpeed
 float Miro::getOptLinSpeed()
 {
-	unsigned long opt_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE/2);
+	unsigned long opt_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE/4);
 	for (char w = 0; w < WHEEL_COUNT; w++)
 	{
 		if (this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2) < opt_wheel_speed_min) opt_wheel_speed_min = this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2);

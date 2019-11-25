@@ -522,7 +522,7 @@ int Chassis::wheelRotateAng(float *speed, float *ang, bool en_break)
 		this->_wheelDir[w] = 1;
 		if ((this->_wheelSetAng[w] * this->_wheelSetAngSpeed[w]) < 0) this->_wheelDir[w] = -1;
 
-		dist_wheelEncoderCount[w] = _IRQ_wheelEncoderCount[w] + int(0.51 + (fabs(this->_wheelSetAng[w]) / float(SEGMENT_ANGLE))); //число сегментов маркерной линейки колеса, которое нужно отсчитать, чтобы повернуть на требуемый угол;
+		dist_wheelEncoderCount[w] = _IRQ_wheelEncoderCount[w] + int(0.0 + (fabs(this->_wheelSetAng[w]) / float(SEGMENT_ANGLE))); //число сегментов маркерной линейки колеса, которое нужно отсчитать, чтобы повернуть на требуемый угол;
 		this->_vbat = this->getVoltage();
 		U[w] = this->_wheelGetU(fabs(this->_wheelSetAngSpeed[w]), w, this->_vbat);
 		if (U[w] < 0) return -1;
@@ -625,7 +625,7 @@ void Chassis::wheelResetEncoder(byte wheel) { _IRQ_wheelEncoderCount[wheel] = 0;
 void Chassis::_wheel_rotate_sync(bool en_break)
 {
 	unsigned long wheelTime = 0;
-	float wheel_angle_speed_max;
+	char break_wheel = 0;
 	bool complete = false;
 	char w;
 	
@@ -641,12 +641,12 @@ void Chassis::_wheel_rotate_sync(bool en_break)
 			if (dist_wheelEncoderCount[w] <= _IRQ_wheelEncoderCount[w]) 
 			{
 				complete = true;
+				break_wheel = w;
 				break; //Exit from "for". Rotate finished.
 			}
 		}
 		if (complete) break; //Exit from "while" if rotate finished
 
-		wheel_angle_speed_max = 0;
 		for (w = WHEEL_COUNT-1; w >= 0; --w)
 		{
 			if (_IRQ_syncloop[w])
@@ -677,7 +677,6 @@ void Chassis::_wheel_rotate_sync(bool en_break)
 				{
 					wheelTime = wheelTime / k;
 					this->_wheelAngSpeed[w] = (360000000.0/WHEEL_SEGMENTS) / wheelTime;
-					if (wheel_angle_speed_max < this->_wheelAngSpeed[w]) wheel_angle_speed_max = this->_wheelAngSpeed[w];
 					this->_wheelAngSpeed[w] = this->_wheelAngSpeed[w] * (float)this->_wheelDir[w];
 				}
 
@@ -690,9 +689,9 @@ void Chassis::_wheel_rotate_sync(bool en_break)
 				U0[w] = abs((int)U[w]);
 				if (dir[w]) U0[w] = 255 - U0[w];
 				
-#if defined (DEBUG_wheel_rotate_sync)
-				Serial.print(F("wheel_angle_speed_max("));
-				Serial.print(wheel_angle_speed_max);
+#if defined(DEBUG_wheel_rotate_sync)
+				Serial.print(F("break_wheel("));
+				Serial.print((int)break_wheel);
 				Serial.print(F(") "));
 				Serial.print(F("Error["));
 				Serial.print((int)w);
@@ -727,7 +726,7 @@ void Chassis::_wheel_rotate_sync(bool en_break)
 			digitalWrite(_wheel_DIR_pins[w], !dir[w]);
 			digitalWrite(_wheel_PWM_pins[w], dir[w]);
 		}
-		delay(this->_wheelGetBDelay(wheel_angle_speed_max, 0));
+		delay(WHEEL_BREAK_DELAY_MULT*this->_wheelGetBDelay(this->_wheelSetAngSpeed[break_wheel], 0));
 	}
 	
 	for (w = WHEEL_COUNT-1; w >= 0; --w) 
