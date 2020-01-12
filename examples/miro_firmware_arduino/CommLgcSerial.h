@@ -3,7 +3,8 @@
 
 #define RXBUFFERSIZE 64
 
-//const char msgs_error[][8]={"MIRO: Unknown command!", "ERROR", ">>>NO ARGUMENTS", ">>>UNKNOWN DEVICE INDEX", ">>>NO PARAMETERS", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER VALUE"};
+#define CMDBUFFERSIZE 2
+#define CMDLENGTH 32
 
 class CommLgcSerial {
   public:
@@ -12,6 +13,11 @@ class CommLgcSerial {
 
   private:
     int parse(char *str);
+
+    int prevCmd();
+    int nextCmd();
+    
+    int help();
 
     int miroget(char *str);
     int miroset(char *str);

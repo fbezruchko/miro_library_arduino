@@ -9,6 +9,9 @@ char inputString[RXBUFFERSIZE];      // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 byte rx_buffer_pos = 0;
 
+char cmdStrings[CMDBUFFERSIZE][CMDLENGTH];
+unsigned char cmdIndex = 0;
+
 extern Miro robot;
 extern int mode;
 
@@ -31,58 +34,90 @@ int CommLgcSerial::parse(char *str)
 {
   char *istr;
 
-  if (strlen(str) == 0)
+  if (strlen(str) != 0)
   {
-    Serial.print(F("Version = "));
-    Serial.print(MIRO_VERSION);
-    Serial.println();
-    Serial.println(F("STATUS: OK"));
-    return 0;
-  }
+    strcpy(cmdStrings[cmdIndex], istr);
+    cmdIndex = (cmdIndex+1)/CMDBUFFERSIZE;
+    
+    istr = strtok(str, " ");
 
-  istr = strtok(str, " ");
-
-  if (!strcmp(istr, "miroget")) return (miroget(istr));
-  else if (!strcmp(istr, "miroset")) return (miroset(istr));
-  else if (!strcmp(istr, "mirodevtable")) return (mirodevtable(istr));
-  else if (!strcmp(istr, "mirocalibwheel")) return (mirocalibwheel(istr));
-  else if (!strcmp(istr, "mirowheeltable")) return (mirowheeltable(istr));
-  else if (!strcmp(istr, "miromode")) return (miromode(istr));
-  else
-  {
-    Serial.println(F("MIRO: Unknown command!"));
-    //Serial.println();
+    if (istr[0] == 72) prevCmd();
+    else if (istr[0] == 80) nextCmd();
+    else if (!strcmp(istr, "help")) help();
+    else if (!strcmp(istr, "miroget")) miroget(istr);
+    else if (!strcmp(istr, "miroset")) miroset(istr);
+    else if (!strcmp(istr, "mirodevtable")) mirodevtable(istr);
+    else if (!strcmp(istr, "mirocalibwheel")) mirocalibwheel(istr);
+    else if (!strcmp(istr, "mirowheeltable")) mirowheeltable(istr);
+    else if (!strcmp(istr, "miromode")) miromode(istr);
+    else
+    {
+      Serial.print(istr);
+      Serial.println(F(": not found"));
+    }
   }
+  Serial.print(F("miro:# "));
 }
 
 /************************************************************************/
 /************************************************************************/
 /************************************************************************/
 
+//========================================== prevCmd
+int CommLgcSerial::prevCmd()
+{
+//  Serial.print('\r');
+//  Serial.print(F("miro:# prev cmd:"));
+//  cmdIndex = (cmdIndex+1)/CMDBUFFERSIZE;
+//  Serial.print(cmdStrings[cmdIndex]);
+//  return 0;
+}
+
+//========================================== nextCmd
+int CommLgcSerial::nextCmd()
+{
+//  Serial.print('\r');
+//  Serial.print(F("miro:# prev cmd:"));
+//  cmdIndex = (cmdIndex+1)/CMDBUFFERSIZE;
+//  Serial.print(cmdStrings[cmdIndex]);
+//  return 0;
+}
+
+//========================================== help
+int CommLgcSerial::help()
+{
+  Serial.println(F("help"));
+  Serial.println(F("miroget"));
+  Serial.println(F("miroset"));
+  Serial.println(F("mirodevtable"));
+  Serial.println(F("mirowheeltable"));
+  Serial.println(F("mirocalibwheel"));
+  Serial.println(F("miromode"));
+  return 0;
+}
+
 //========================================== printWheelTable
 
 void CommLgcSerial::printWheelTable()
 {
-  Serial.println(F("MOTORS CALIBRATION TABLE"));
   for (byte w = 0; w < WHEEL_COUNT; w++)
   {
     Serial.print(F("WHEEL "));
     Serial.println(w);
     Serial.print(F("VOLTS"));
-    Serial.print(F("   "));
+    Serial.print(F(" "));
     Serial.print(F("DEG/SEC"));
-    Serial.print(F("   "));
+    Serial.print(F(" "));
     Serial.println(F("BDELAYS"));
 
     for (byte i = 0; i < WHEEL_TABLE_SIZE; i++)
     {
       Serial.print(robot.chassis.getWheelTableValue(w, VOLTS, i));
-      Serial.print(F("   "));
+      Serial.print(F(" "));
       Serial.print(robot.chassis.getWheelTableValue(w, SPEED, i));
-      Serial.print(F("   "));
+      Serial.print(F(" "));
       Serial.println(robot.chassis.getWheelTableValue(w, BREAKDELAY, i));
     }
-    Serial.println();
   }
   return;
 }
@@ -91,18 +126,13 @@ int CommLgcSerial::miroget(char * str)
 {
   char *istr;
   istr = strtok(NULL, " ");
-  Serial.print(F("MIRO: miroget running... \""));
-  Serial.print(istr);
-  Serial.println("\"");
   if (istr == NULL) {
-    Serial.println(F("ERROR"));// ;
     return -1;
   }
 
   if (!strcmp(istr, "-s"))
   {
     float path = robot.getPath();
-    Serial.print(F("Path = "));
     Serial.print(path);
     Serial.println();
     return 0;
@@ -110,7 +140,6 @@ int CommLgcSerial::miroget(char * str)
 
   if (!strcmp(istr, "-fw"))
   {
-    Serial.print(F("Version = "));
     Serial.print(MIRO_VERSION);
     Serial.println();
     return 0;
@@ -120,7 +149,6 @@ int CommLgcSerial::miroget(char * str)
   {
     float linear_speed = 0.0;
     linear_speed = robot.getLinSpeed();
-    Serial.print(F("Linear speed = "));
     Serial.print(linear_speed);
     Serial.println();
     return 0;
@@ -130,7 +158,6 @@ int CommLgcSerial::miroget(char * str)
   {
     float angular_speed = 0.0;
     angular_speed = robot.getAngSpeed();
-    Serial.print(F("Angular speed = "));
     Serial.print(angular_speed);
     Serial.println();
     return 0;
@@ -140,7 +167,6 @@ int CommLgcSerial::miroget(char * str)
   {
     float angular_speed_radians = 0.0;
     angular_speed_radians = robot.getAngSpeedRad();
-    Serial.print(F("Angular speed in radians = "));
     Serial.print(angular_speed_radians);
     Serial.println();
     return 0;
@@ -150,36 +176,29 @@ int CommLgcSerial::miroget(char * str)
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F(">>>NO ARGUMENTS"));
+      Serial.println(F("miroget -d: No parameters"));
       return -1;
     }
     int device = atoi(istr);
     if (device < 0 || device > 255) {
-      Serial.println(F(">>>UNKNOWN DEVICE INDEX"));
+      Serial.println(F("miroget -d: Unknown device index"));
       return -1;
     }
-    Serial.print(F("Device = "));
-    Serial.print(device);
-    Serial.println();
     const int count = robot.getDeviceByIndex(device)->getParamCount();
 
     //==============================================================
 
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F(">>>NO PARAMETERS"));
+      Serial.println(F("miroget -d: No parameters"));
       return -1;
     }
     int paramN = atoi(istr);
     if (paramN <= 0 || paramN > count) {
-      Serial.println(F(">>>UNKNOWN PARAMETER"));
+      Serial.println(F("miroget -d: Unknown parameter"));
       return -1;
     }
 
-    Serial.print(robot.getDeviceByIndex(device)->getName());
-    Serial.print(F(" parameter "));
-    Serial.print(paramN);
-    Serial.print(F(" value = "));
     if (!strcmp("LED", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN;
@@ -222,11 +241,7 @@ int CommLgcSerial::miroset(char * str)
 {
   char *istr;
   istr = strtok(NULL, " ");
-  Serial.print(F("MIRO: miroset running... \""));
-  Serial.print(istr);
-  Serial.println(F("\""));
   if (istr == NULL) {
-    Serial.println(F("ERROR"));
     return -1;
   }
 
@@ -236,7 +251,7 @@ int CommLgcSerial::miroset(char * str)
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F("ERROR"));
+      Serial.println(F("miroset -r: No parameters"));
       return -1;
     }
 
@@ -245,12 +260,8 @@ int CommLgcSerial::miroset(char * str)
     istr = strtok(NULL, " ");
     if (istr == NULL)
     {
-      Serial.print(F("Speed = "));
-      Serial.print(angular_speed);
-      Serial.println();
       if (robot.rotate(angular_speed))
       {
-        Serial.println(F("ERROR"));
         Serial.print(F("Robot angular speed (degrees/s) must be between "));
         Serial.print(robot.getMinAngSpeed());
         Serial.print(F(" and "));
@@ -262,14 +273,13 @@ int CommLgcSerial::miroset(char * str)
 
     float angle = atof(istr);
 
-    Serial.print(F("Speed = "));
-    Serial.print(angular_speed);
-    Serial.print(F(" | Angle = "));
-    Serial.print(angle);
-    Serial.println();
+//    Serial.print(F("Angular Speed = "));
+//    Serial.print(angular_speed);
+//    Serial.print(F(" | Angle = "));
+//    Serial.print(angle);
+//    Serial.println();
     if (robot.rotateAng(angular_speed, angle, true))
     {
-      Serial.println(F("ERROR"));
       Serial.print(F("Robot angular speed (degrees/s) must be between "));
       Serial.print(robot.getMinAngSpeed());
       Serial.print(F(" and "));
@@ -285,7 +295,7 @@ int CommLgcSerial::miroset(char * str)
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F("ERROR"));
+      Serial.println(F("miroset -m: No parameters"));
       return -1;
     }
 
@@ -293,7 +303,7 @@ int CommLgcSerial::miroset(char * str)
 
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F("ERROR"));
+      Serial.println(F("miroset -m: No 'angular speed' parameter"));
       return -1;
     }
 
@@ -302,14 +312,13 @@ int CommLgcSerial::miroset(char * str)
     istr = strtok(NULL, " ");
     if (istr == NULL)
     {
-      Serial.print(F("L_speed = "));
-      Serial.print(linear_speed);
-      Serial.print(F(" | A_speed = "));
-      Serial.print(angular_speed);
-      Serial.println();
+//      Serial.print(F("L_speed = "));
+//      Serial.print(linear_speed);
+//      Serial.print(F(" | A_speed = "));
+//      Serial.print(angular_speed);
+//      Serial.println();
       if (robot.move(linear_speed, angular_speed))
       {
-        Serial.println(F("ERROR"));
         Serial.print(F("Robot linear speed (m/s) must be between "));
         Serial.print(robot.getMinLinSpeed());
         Serial.print(F(" and "));
@@ -320,16 +329,15 @@ int CommLgcSerial::miroset(char * str)
     }
     float distance = atof(istr);
 
-    Serial.print(F("L_speed = "));
-    Serial.print(linear_speed);
-    Serial.print(F(" | A_speed = "));
-    Serial.print(angular_speed);
-    Serial.print(F(" | distance = "));
-    Serial.print(distance);
-    Serial.println();
+//    Serial.print(F("L_speed = "));
+//    Serial.print(linear_speed);
+//    Serial.print(F(" | A_speed = "));
+//    Serial.print(angular_speed);
+//    Serial.print(F(" | distance = "));
+//    Serial.print(distance);
+//    Serial.println();
     if (robot.moveDist(linear_speed, angular_speed, distance, true))
     {
-      Serial.println(F("ERROR"));
       Serial.print(F("Robot linear speed (m/s) must be between "));
       Serial.print(robot.getMinLinSpeed());
       Serial.print(F(" and "));
@@ -345,12 +353,12 @@ int CommLgcSerial::miroset(char * str)
   {
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F(">>>NO ARGUMENTS"));
+      Serial.println(F("miroset -d: No parameters"));
       return -1;
     }
     int device = atoi(istr);
     if (device < 0 || device > 255) {
-      Serial.println(F(">>>UNKNOWN DEVICE INDEX"));
+      Serial.println(F("miroset -d: Unknown device index"));
       return -1;
     }
     const int count = robot.getDeviceByIndex(device)->getParamCount();
@@ -359,12 +367,12 @@ int CommLgcSerial::miroset(char * str)
 
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F(">>>NO PARAMETERS"));
+      Serial.println(F("miroset -d: No parameters"));
       return -1;
     }
     int paramN = atoi(istr);
     if (paramN <= 0 || paramN > count) {
-      Serial.println(F(">>>UNKNOWN PARAMETER"));
+      Serial.println(F("miroset -d: Unknown parameter"));
       return -1;
     }
 
@@ -372,37 +380,31 @@ int CommLgcSerial::miroset(char * str)
 
     istr = strtok(NULL, " ");
     if (istr == NULL) {
-      Serial.println(F(">>>UNKNOWN PARAMETER VALUE"));
+      Serial.println(F("miroset -d: Unknown parameter value"));
       return -1;
     }
 
-    Serial.print(robot.getDeviceByIndex(device)->getName());
-    Serial.print(F(" parameter "));
-    Serial.print(paramN);
-    Serial.print(F(" value = "));
     if (!strcmp("LED", robot.getDeviceByIndex(device)->getName()))
     {
-
       byte valueN = atof(istr);
       robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      Serial.print((int)valueN);
+      //Serial.print((int)valueN);
     }
 
     if (!strcmp("USONIC", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN = atof(istr);
       robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      Serial.print((int)valueN);
+      //Serial.print((int)valueN);
     }
 
     if (!strcmp("SERVO", robot.getDeviceByIndex(device)->getName()))
     {
       byte valueN = atof(istr);
       robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      Serial.print((int)valueN);
+      //Serial.print((int)valueN);
     }
-
-    Serial.println();
+    
     return 0;
   }
 }
@@ -413,11 +415,10 @@ int CommLgcSerial::miroset(char * str)
 
 int CommLgcSerial::mirodevtable(char * str)
 {
-  Serial.println(F(">>>MIRODEVTABLE CALL"));
   for (int i = 0; i < robot.getDeviceCount(); i++)
   {
     Serial.print(i);
-    Serial.print(F("   -   "));
+    Serial.print(F(" - "));
     Serial.print(robot.getDeviceByIndex(i)->getName());
     Serial.println();
   }
@@ -428,16 +429,14 @@ int CommLgcSerial::mirocalibwheel(char * str)
 {
   char *istr;
   istr = strtok(NULL, " ");
-  Serial.print(F("MIRO: mirocalibwheel running... "));
-  Serial.println(istr);
   if (istr == NULL) {
-    Serial.println(F("ERROR: No 'wheel' parameter."));
+    Serial.println(F("mirocalibwheel: No 'wheel' parameter"));
     return -1;
   }
 
   byte wheel = atoi(istr);
   if (wheel < 0 || wheel > robot.chassis.getWheelCount()) {
-    Serial.println(F("ERROR: wrong wheel index."));
+    Serial.println(F("mirocalibwheel: Wrong wheel index"));
     return -1;
   }
   robot.chassis.wheelCalibrate(wheel);
@@ -447,7 +446,6 @@ int CommLgcSerial::mirocalibwheel(char * str)
 
 int CommLgcSerial::mirowheeltable(char * str)
 {
-  Serial.println(F("MIRO: mirowheeltable running..."));
   this->printWheelTable();
   return 0;
 }
@@ -482,60 +480,56 @@ int CommLgcSerial::miromode(char * str)
 {
   char *istr;
   istr = strtok(NULL, " ");
-  Serial.print(F("MIRO: miromode running... \""));
-  Serial.print(istr);
-  Serial.println("\"");
   if (istr == NULL) {
-    Serial.println(F("ERROR"));// ;
     return -1;
   }
 
   if (!strcmp(istr, "0"))
   {
     mode = 0;
-    Serial.println(F("Switch to mode 0"));
+    Serial.println(F("miromode: 0"));
     return 0;
   }
 
   if (!strcmp(istr, "1"))
   {
     mode = 1;
-    Serial.println(F("Switch to mode 1"));
+    Serial.println(F("miromode: 1"));
     return 0;
   }
 
   if (!strcmp(istr, "2"))
   {
     mode = 2;
-    Serial.println(F("Switch to mode 2"));
+    Serial.println(F("miromode: 2"));
     return 0;
   }
 
   if (!strcmp(istr, "3"))
   {
     mode = 3;
-    Serial.println(F("Switch to mode 3"));
+    Serial.println(F("miromode: 3"));
     return 0;
   }
 
   if (!strcmp(istr, "4"))
   {
     mode = 4;
-    Serial.println(F("Switch to mode 4"));
+    Serial.println(F("miromode: 4"));
     return 0;
   }
 
   if (!strcmp(istr, "5"))
   {
     mode = 5;
-    Serial.println(F("Switch to mode 5"));
+    Serial.println(F("miromode: 5"));
     return 0;
   }
 
   if (!strcmp(istr, "100"))
   {
     mode = 100;
-    Serial.println(F("Switch to mode 100. Full test!"));
+    Serial.println(F("miromode: 100"));
     return 0;
   }
 }

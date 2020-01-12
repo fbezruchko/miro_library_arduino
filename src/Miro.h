@@ -12,7 +12,7 @@
 
 namespace miro {
 
-const char MIRO_VERSION[] = "v1.0.0";
+const char MIRO_VERSION[] = "1.0.0";
 
 class Miro : public Robot {
 public:
