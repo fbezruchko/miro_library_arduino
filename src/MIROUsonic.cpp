@@ -20,8 +20,8 @@ const char _const_dev_name[] = "USONIC";
 
 void MIROUsonic::Init(byte trig_pin, byte echo_pin)
 {
-	this->pins[NUM] = malloc(USONIC_PINS_COUNT);
-	this->pins[TYPE] = malloc(USONIC_PINS_COUNT);
+	this->pins[NUM] = (byte*)malloc(USONIC_PINS_COUNT);
+	this->pins[TYPE] = (byte*)malloc(USONIC_PINS_COUNT);
 	
 	this->pins[NUM][TRIG_PIN] = trig_pin;
 	this->pins[TYPE][TRIG_PIN] = OUTPUT;

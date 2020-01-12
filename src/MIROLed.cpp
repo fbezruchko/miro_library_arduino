@@ -14,8 +14,8 @@ const char _const_dev_name[] = "LED";
 
 void MIROLed::Init(byte pin)
 {
-	this->pins[NUM] = malloc(LED_PINS_COUNT);
-	this->pins[TYPE] = malloc(LED_PINS_COUNT);
+	this->pins[NUM] = (byte*)malloc(LED_PINS_COUNT);
+	this->pins[TYPE] = (byte*)malloc(LED_PINS_COUNT);
 	this->pins[NUM][0] = pin;
 	this->pins[TYPE][0] = OUTPUT;
 	pinMode(pin, OUTPUT);

@@ -12,7 +12,8 @@ static void wheelISR0()
 {
 	cli();
 	_IRQ_wheelTime[0] = micros();
-	_IRQ_wheelTimeArray[0][_IRQ_wheelEncoderCount[0] % MEAN_DEPTH] = _IRQ_wheelTime[0] - _IRQ_wheelTime_last[0];
+	//_IRQ_wheelTimeArray[0][_IRQ_wheelEncoderCount[0] % MEAN_DEPTH] = _IRQ_wheelTime[0] - _IRQ_wheelTime_last[0];
+	_IRQ_wheelTimeArray[0][*((byte*)(&_IRQ_wheelEncoderCount[0])) % MEAN_DEPTH] = _IRQ_wheelTime[0] - _IRQ_wheelTime_last[0];
 	_IRQ_wheelTime_last[0] = _IRQ_wheelTime[0];
 	_IRQ_wheelEncoderCount[0]++;
 	_IRQ_syncloop[0] = true;
@@ -23,7 +24,8 @@ static void wheelISR1()
 {
 	cli();
 	_IRQ_wheelTime[1] = micros();
-	_IRQ_wheelTimeArray[1][_IRQ_wheelEncoderCount[1] % MEAN_DEPTH] = _IRQ_wheelTime[1] - _IRQ_wheelTime_last[1];
+	//_IRQ_wheelTimeArray[1][_IRQ_wheelEncoderCount[1] % MEAN_DEPTH] = _IRQ_wheelTime[1] - _IRQ_wheelTime_last[1];
+	_IRQ_wheelTimeArray[1][*((byte*)(&_IRQ_wheelEncoderCount[1])) % MEAN_DEPTH] = _IRQ_wheelTime[1] - _IRQ_wheelTime_last[1];
 	_IRQ_wheelTime_last[1] = _IRQ_wheelTime[1];
 	_IRQ_wheelEncoderCount[1]++;
 	_IRQ_syncloop[1] = true;

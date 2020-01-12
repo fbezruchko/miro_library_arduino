@@ -14,8 +14,8 @@ const char _const_dev_name[] = "SERVO";
 
 void MIROServo::Init(byte pin, byte min_value, byte max_value)
 {
-	this->pins[NUM] = malloc(SERVO_PINS_COUNT);
-	this->pins[TYPE] = malloc(SERVO_PINS_COUNT);
+	this->pins[NUM] = (byte*)malloc(SERVO_PINS_COUNT);
+	this->pins[TYPE] = (byte*)malloc(SERVO_PINS_COUNT);
 	this->pins[NUM][0] = pin;
 	this->pins[TYPE][0] = OUTPUT;
 	pinMode(pin, OUTPUT);

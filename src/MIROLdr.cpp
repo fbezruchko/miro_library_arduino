@@ -14,8 +14,8 @@ const char _const_dev_name[] = "LDR";
 
 void MIROLdr::Init(byte pin)
 {
-	this->pins[NUM] = malloc(LDR_PINS_COUNT);
-	this->pins[TYPE] = malloc(LDR_PINS_COUNT);
+	this->pins[NUM] = (byte*)malloc(LDR_PINS_COUNT);
+	this->pins[TYPE] = (byte*)malloc(LDR_PINS_COUNT);
 	this->pins[NUM][0] = pin;
 	this->pins[TYPE][0] = INPUT;
 	pinMode(pin, INPUT);

@@ -14,8 +14,8 @@ const char _const_dev_name[] = "LINE";
 
 void MIROLine::Init(byte pin)
 {
-	this->pins[NUM] = malloc(LINE_PINS_COUNT);
-	this->pins[TYPE] = malloc(LINE_PINS_COUNT);
+	this->pins[NUM] = (byte*)malloc(LINE_PINS_COUNT);
+	this->pins[TYPE] = (byte*)malloc(LINE_PINS_COUNT);
 	this->pins[NUM][0] = pin;
 	this->pins[TYPE][0] = INPUT;
 	pinMode(pin, INPUT);
