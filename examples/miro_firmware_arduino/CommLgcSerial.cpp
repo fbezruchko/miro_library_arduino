@@ -17,7 +17,7 @@ extern int mode;
 
 void CommLgcSerial::begin()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void CommLgcSerial::handle()
@@ -384,26 +384,9 @@ int CommLgcSerial::miroset(char * str)
       return -1;
     }
 
-    if (!strcmp("LED", robot.getDeviceByIndex(device)->getName()))
-    {
-      byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      //Serial.print((int)valueN);
-    }
-
-    if (!strcmp("USONIC", robot.getDeviceByIndex(device)->getName()))
-    {
-      byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      //Serial.print((int)valueN);
-    }
-
-    if (!strcmp("SERVO", robot.getDeviceByIndex(device)->getName()))
-    {
-      byte valueN = atof(istr);
-      robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
-      //Serial.print((int)valueN);
-    }
+    byte valueN = atof(istr);
+    robot.getDeviceByIndex(device)->setParam(paramN, &valueN);
+    //Serial.print((int)valueN);
     
     return 0;
   }
