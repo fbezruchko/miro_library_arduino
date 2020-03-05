@@ -2,8 +2,7 @@
 #define commLgcserial_h
 
 #define RXBUFFERSIZE 64
-
-//const char msgs_error[][8]={"MIRO: Unknown command!", "ERROR", ">>>NO ARGUMENTS", ">>>UNKNOWN DEVICE INDEX", ">>>NO PARAMETERS", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER", ">>>UNKNOWN PARAMETER VALUE"};
+#define TXBUFFERSIZE 32
 
 class CommLgcSerial {
   public:
@@ -12,14 +11,15 @@ class CommLgcSerial {
 
   private:
     int parse(char *str);
-
-    int miroget(char *str);
-    int miroset(char *str);
-
-    int mirodevtable(char *str);
-    int mirocalibwheel(char *str);
-    int mirowheeltable(char * str);
-    int miromode(char * str);
+    
+    int help();
+    int miroget();
+    int miroset();
+    int mirodevtable();
+    int mirocalibwheel();
+    int mirowheeltable();
+    int miroattach();
+    int mirodetach();
 
     void printWheelTable();
 };

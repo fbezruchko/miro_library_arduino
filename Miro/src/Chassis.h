@@ -1,24 +1,22 @@
-#pragma once
-
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-	#include "WProgram.h"
-#endif
+#ifndef chassis_h
+#define chassis_h
 
 #include "defs.h"
 #include "config.h"
 #include "default_config.h"
 #include "Chassis_IRQ.h"
 
-namespace miro {
+//namespace miro {
 
 class Chassis {
 public:
 
-	Chassis(byte *PWM_pins, byte *DIR_pins);
+	Chassis() {};
+	Chassis(uint8_t *PWM_pins, uint8_t *DIR_pins);
+	void _init(uint8_t *PWM_pins, uint8_t *DIR_pins);
 #if defined(ENCODERS_ON)	
-	Chassis(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
+	Chassis(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins);
+	void _init(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins);
 #endif // ENCODERS_ON
 	~Chassis();
 	
@@ -39,9 +37,9 @@ public:
 	int wheelRotatePWM(int *speedPWM);
 	
 	/*Returns True if the wheel is spinning and False if it is not spinning*/
-	bool wheelIsMoving(byte wheel) {return this->_wheel_move[wheel];}
+	bool wheelIsMoving(int8_t wheel) {return this->_wheel_move[wheel];}
 	
-	byte getWheelCount() { return WHEEL_COUNT; }
+	uint8_t getWheelCount() { return WHEEL_COUNT; }
 	
 	//===================================================
 	//===================================================
@@ -55,9 +53,9 @@ public:
 	The data obtained during calibration are used in many functions to set the initial values ​​of PWM motors,
 	depending on the required angular speed of the wheel.
 	*/
-	void wheelCalibrate(byte wheel);
+	void wheelCalibrate(int8_t wheel);
 	
-	int getWheelTableValue(byte wheel, byte parameter, byte record);
+	int getWheelTableValue(int8_t wheel, int8_t parameter, int8_t record);
 
 	/*
 	Synchronous rotation of the wheels. IMPORTANT FUNCTION!
@@ -73,22 +71,22 @@ public:
 	int wheelRotate(float *speed);
 
 	/*Returns the odometry counter value of the selected motor (wheel)*/
-	unsigned long wheelGetEncoder(byte wheel);
+	unsigned long wheelGetEncoder(int8_t wheel);
 
 	/*Reset odometry counter value of the selected motor (wheel)*/
-	void wheelResetEncoder(byte wheel);
+	void wheelResetEncoder(int8_t wheel);
 
 	/*Returns the value of the angular velocity of the selected wheel (deg / sec)*/
-	float wheelGetAngSpeed(byte wheel) { return (this->_wheelAngSpeed[wheel]); }
+	float wheelGetAngSpeed(int8_t wheel) { return (this->_wheelAngSpeed[wheel]); }
 
 	/*Returns the value of the angular velocity of the selected wheel (rad / sec)*/
-	float wheelGetAngSpeedRad(byte wheel) { return this->_wheelAngSpeed[wheel] / MIRO_PI2ANG; }
+	float wheelGetAngSpeedRad(int8_t wheel) { return this->_wheelAngSpeed[wheel] / MIRO_PI2ANG; }
 
 	/*Returns the length of the path traveled by the selected wheel (meters)*/
-	float wheelGetPath(byte wheel);
+	float wheelGetPath(int8_t wheel);
 
 	/*Returns the linear velocity of the wheel axis (m / s)*/
-	float wheelGetLinSpeed(byte wheel) { return MIRO_PI * this->_wheelAngSpeed[wheel] * WHEEL_RADIUS / 180.0; }
+	float wheelGetLinSpeed(int8_t wheel) { return MIRO_PI * this->_wheelAngSpeed[wheel] * WHEEL_RADIUS / 180.0; }
 	
 #endif // ENCODERS_ON
 
@@ -96,16 +94,14 @@ private:
 
 	float _vbat; //Battery volgage
 	bool _wheel_move[WHEEL_COUNT];
-	char _wheelDir[WHEEL_COUNT];
+	int8_t _wheelDir[WHEEL_COUNT];
 
-	byte _wheel_PWM_pins[WHEEL_COUNT];
-	byte _wheel_DIR_pins[WHEEL_COUNT];
-	
-	void _init(byte *PWM_pins, byte *DIR_pins);
+	uint8_t _wheel_PWM_pins[WHEEL_COUNT];
+	uint8_t _wheel_DIR_pins[WHEEL_COUNT];
 	
 #if defined(ENCODERS_ON)
 	
-	byte _wheel_ENCODER_pins[WHEEL_COUNT];
+	uint8_t _wheel_ENCODER_pins[WHEEL_COUNT];
 	bool _wheel_sync_move;
 	
 	float _wheelAngSpeed[WHEEL_COUNT];
@@ -118,8 +114,8 @@ private:
 //==========================================
 	void _wheel_rotate_sync(bool en_break);
 	
-	int _eepromReadWheelTable(byte wheel, int *table);
-	int _eepromWriteWheelTable(byte wheel, int *table);
+	int _eepromReadWheelTable(int8_t wheel, int *table);
+	int _eepromWriteWheelTable(int8_t wheel, int *table);
 	
 	int _wheelGetU(float ang_speed, int wheel, float volts);
 	int _wheelGetBDelay(float ang_speed, int wheel);
@@ -128,4 +124,6 @@ private:
 
 };
 
-} // end namespace
+//} // end namespace
+
+#endif

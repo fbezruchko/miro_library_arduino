@@ -1,7 +1,18 @@
-#pragma once
+#ifndef default_config_h
+#define default_config_h
 	
 #if !defined(ENCODERS_ON)
 	//#define ENCODERS_ON
+#endif
+
+#if !defined(CHASSIS_PWM_PINS)
+	#define CHASSIS_PWM_PINS {5, 6}
+#endif
+#if !defined(CHASSIS_PWM_PINS)
+	#define CHASSIS_DIR_PINS {4, 7}
+#endif
+#if !defined(CHASSIS_PWM_PINS)
+	#define CHASSIS_ENCODER_PINS {2, 3}
 #endif
 	
 #if !defined(ROBOT_MAX_DEVICES)
@@ -61,4 +72,6 @@
 
 #if !defined (DEFAULT_PID_Kd)
 	#define DEFAULT_PID_Kd (0.127)
+#endif
+
 #endif

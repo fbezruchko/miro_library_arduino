@@ -1,26 +1,26 @@
 #ifndef device_h
 #define device_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
+#include <stdint.h>
 
 //namespace miro {
 
-class Device
-{
+//#include "device_types_enum.h"
+
+class Device {
 public:
-	virtual void Sync();
-	virtual void setParam(byte pnum, byte *pvalue);
-    virtual void getParam(byte pnum, byte *pvalue);
-	virtual byte getPinsCount();
+	Device(uint8_t* pin, uint8_t pin_count);
+	~Device();
+	//virtual void Init(uint8_t* pin, uint8_t pin_count);
 	virtual char* getName();
-	virtual byte getParamCount();
+	virtual uint8_t getPinsCount();
+	virtual uint8_t getParamCount();
+	virtual void setParam(uint8_t pnum, uint8_t *pvalue);
+    virtual void getParam(uint8_t pnum, uint8_t *pvalue);
+	virtual void Sync();
 
 protected:	
-	byte *pins[2]; //Pins array. First byte - pin number, second byte - type of the pin (INPUT/OUTPUT)
+	uint8_t *pins[2]; //Pins array. First int8_t - pin number, second int8_t - type of the pin (INPUT/OUTPUT)
 };
 
 //} //end namespace

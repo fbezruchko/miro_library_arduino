@@ -1,18 +1,35 @@
 #include "Miro.h"
 #include "defs.h"
 
-using namespace miro;
+//using namespace miro;
 
 //========================================== C
-Miro::Miro(byte *PWM_pins, byte *DIR_pins) : Robot(PWM_pins, DIR_pins)
+Miro::Miro(uint8_t *PWM_pins, uint8_t *DIR_pins)
 {
+	_init(PWM_pins, DIR_pins);
 }
 
 #if defined(ENCODERS_ON)
 //========================================== C
-Miro::Miro(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins) : Robot(PWM_pins, DIR_pins, ENCODER_pins)
+Miro::Miro()
 {
-	this->_device_count = 0;
+	uint8_t PWM_pins[2] = CHASSIS_PWM_PINS;
+	uint8_t DIR_pins[2] = CHASSIS_DIR_PINS;
+	uint8_t ENCODER_pins[2] = CHASSIS_ENCODER_PINS;
+	_init(PWM_pins, DIR_pins, ENCODER_pins);
+}
+
+Miro::Miro(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins)
+{
+	_init(PWM_pins, DIR_pins);
+}
+
+#else
+Miro::Miro()
+{
+	uint8_t PWM_pins[2] = CHASSIS_PWM_PINS;
+	uint8_t DIR_pins[2] = CHASSIS_DIR_PINS;
+	_init(PWM_pins, DIR_pins);
 }
 #endif
 
@@ -163,7 +180,7 @@ float Miro::getPath() { return ((this->chassis.wheelGetPath(RIGHT) + this->chass
 float Miro::getMaxLinSpeed()
 {
 	unsigned long min_wheel_speed_max = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE - 1);
-	for (char w = 0; w < WHEEL_COUNT; w++)
+	for (int8_t w = 0; w < WHEEL_COUNT; w++)
 	{
 		if (this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1) < min_wheel_speed_max) min_wheel_speed_max = this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE - 1);
 	}
@@ -174,7 +191,7 @@ float Miro::getMaxLinSpeed()
 float Miro::getMinLinSpeed()
 {
 	unsigned long min_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, 0);
-	for (char w = 0; w < WHEEL_COUNT; w++)
+	for (int8_t w = 0; w < WHEEL_COUNT; w++)
 	{
 		if (this->chassis.getWheelTableValue(w, SPEED, 0) > min_wheel_speed_min) min_wheel_speed_min = this->chassis.getWheelTableValue(w, SPEED, 0);
 	}
@@ -185,7 +202,7 @@ float Miro::getMinLinSpeed()
 float Miro::getOptLinSpeed()
 {
 	unsigned long opt_wheel_speed_min = this->chassis.getWheelTableValue(0, SPEED, WHEEL_TABLE_SIZE/4);
-	for (char w = 0; w < WHEEL_COUNT; w++)
+	for (int8_t w = 0; w < WHEEL_COUNT; w++)
 	{
 		if (this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2) < opt_wheel_speed_min) opt_wheel_speed_min = this->chassis.getWheelTableValue(w, SPEED, WHEEL_TABLE_SIZE/2);
 	}

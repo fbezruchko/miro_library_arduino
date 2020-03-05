@@ -1,4 +1,5 @@
-#pragma once
+#ifndef robot_h
+#define robot_h
 
 #include "Chassis.h"
 #include "Device.h"
@@ -7,14 +8,15 @@
 #include "config.h"
 #include "default_config.h"
 
-namespace miro {
+//namespace miro {
 
 class Robot {
 public:
 
-	Robot(byte *PWM_pins, byte *DIR_pins);
+	Robot() {};
+	Robot(uint8_t *PWM_pins, uint8_t *DIR_pins);
 #if defined(ENCODERS_ON)
-	Robot(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
+	Robot(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins);
 #endif  // ENCODERS_ON
 	~Robot();
 	
@@ -26,15 +28,22 @@ public:
 	int attachDevice(Device *dev);
 
 	int dettachDevice(Device *dev);
-	int dettachDevice(byte DeviceIndex);
+	int dettachDevice(uint8_t DeviceIndex);
 
-    Device* getDeviceByIndex(byte DeviceIndex);
-    byte getDeviceCount();
+    Device* getDeviceByIndex(uint8_t DeviceIndex);
+    uint8_t getDeviceCount();
 	
 protected:
 
+	void _init(uint8_t *PWM_pins, uint8_t *DIR_pins);
+#if defined(ENCODERS_ON)
+	void _init(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins);
+#endif  // ENCODERS_ON
+
 	Device* _devices[ROBOT_MAX_DEVICES];
-	byte _device_count;
+	uint8_t _device_count;
 };
 
-} // end namespace
+//} // end namespace
+
+#endif

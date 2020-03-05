@@ -1,6 +1,11 @@
-#pragma once
+#ifndef config_h
+#define config_h
 
 #define ENCODERS_ON
+
+#define CHASSIS_PWM_PINS {5, 6}
+#define CHASSIS_DIR_PINS {4, 7}
+#define CHASSIS_ENCODER_PINS {2, 3}
 
 #define ROBOT_MAX_DEVICES 12
 #define PIN_VBAT A0
@@ -9,7 +14,7 @@
 #define ROBOT_DIAMETER (0.163)
 #define WHEEL_SEGMENTS (30.0)
 #define WHEEL_RADIUS (0.0345)
-#define MEAN_DEPTH 8
+#define MEAN_DEPTH_POWER 3
 	
 #define WHEEL_ANGLE_SPEED_MAX (1500)
 #define WHEEL_ANGLE_SPEED_MIN (100)
@@ -31,3 +36,5 @@
 //#define DEBUG_wheelGetU 1
 //#define DEBUG_wheel_rotate_sync 1
 //#define DEBUG_wheelCalibrate 1
+
+#endif
