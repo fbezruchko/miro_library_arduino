@@ -4,14 +4,11 @@
 #include "Device.h"
 
 //namespace miro {
-	
-#define LED_PINS_COUNT 1
-#define LED_PCOUNT 1
-#define LED_VALUE 1
+
 
 class Led : public Device {
 public:
-	Led(uint8_t* pin, uint8_t pin_count = 1);
+	Led(uint8_t* pins, uint8_t pins_count);
 	~Led();
 	//void Init(uint8_t* pin, uint8_t pin_count = LED_PINS_COUNT);
 	char* getName();
@@ -21,10 +18,12 @@ public:
     void getParam(uint8_t pnum, uint8_t *pvalue);
 	
 private:
-    uint8_t value;
+    uint8_t _value;
 };
 
-Device* CreateLED(uint8_t *, uint8_t);
+Device* CreateLED(uint8_t *);
+Device* CreateLED();
+
 void DestroyLED(Device*);
 
 //}

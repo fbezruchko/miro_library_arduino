@@ -4,16 +4,21 @@
 
 //using namespace miro;
 
+#define LED_PINS_COUNT 1
+#define LED_PCOUNT 1
+#define LED_VALUE 1
+
 #define NUM 0
 #define TYPE 1
 
 const char _const_dev_name[] = "LED";
+const uint8_t default_pins[] = {13};
 
-Led::Led(uint8_t* pin, uint8_t pin_count) : Device(pin, pin_count)
+Led::Led(uint8_t* pins, uint8_t pins_count = LED_PINS_COUNT) : Device(pins, pins_count)
 {
-	pins[TYPE][0] = OUTPUT;
-	pinMode(this->pins[NUM][0], OUTPUT);
-	this->value = analogRead(this->pins[NUM][0]);
+	this->_pins[TYPE][0] = OUTPUT;
+	pinMode(this->_pins[NUM][0], OUTPUT);
+	this->_value = analogRead(this->_pins[NUM][0]);
 }
 
 Led::~Led()
@@ -29,20 +34,26 @@ void Led::setParam(uint8_t pnum, uint8_t *pvalue)
 {
     if (pnum == LED_VALUE)
 	{
-		analogWrite(this->pins[NUM][0], *pvalue);
-		this->value = *pvalue;
+		analogWrite(this->_pins[NUM][0], *pvalue);
+		this->_value = *pvalue;
 	}
 }
 
 void Led::getParam(uint8_t pnum, uint8_t *pvalue)
 {
-    if (pnum == LED_VALUE)  *pvalue = this->value;
+    if (pnum == LED_VALUE)  *pvalue = this->_value;
 }
 
-Device* CreateLED(uint8_t* pin, uint8_t pin_count)
+Device* CreateLED(uint8_t* pins)
 {
-  Device* d = new Led(pin);
-  return d;
+	Device* d = new Led(pins);
+	return d;
+}
+
+Device* CreateLED()
+{
+	Device* d = new Led(default_pins);
+	return d;
 }
 
 void DestroyLED(Device* device)

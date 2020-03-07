@@ -3,7 +3,7 @@
 
 #include "Led.h"
 
-Device* CreateNULLDEVICE(uint8_t* pin, uint8_t pin_count)
+Device* CreateNULLDEVICE(uint8_t* pin)
 {
   return nullptr;
 }
@@ -34,13 +34,19 @@ const char* DEVICE_TYPES_NAMES[] = {
 #undef NAME_VALUE
 
 #define NAME_VALUE(NAME, PINS, VALUE) PINS
-const uint8_t DEVICE_TYPES_PINS[] = {
+const uint8_t DEVICE_PINS_COUNT[] = {
 #include "device_types.h"
 };
 #undef NAME_VALUE
 
 #define NAME_VALUE(NAME, PINS, VALUE) &Create##NAME
-Device* (*DEVICE_FABRIC[NULLDEVICE+1])(uint8_t *, uint8_t) = {
+Device* (*DEVICE_FABRIC[NULLDEVICE+1])(uint8_t *) = {
+#include "device_types.h"
+};
+#undef NAME_VALUE
+
+#define NAME_VALUE(NAME, PINS, VALUE) &Create##NAME
+Device* (*DEVICE_FABRIC_DEFAULT[NULLDEVICE+1])() = {
 #include "device_types.h"
 };
 #undef NAME_VALUE

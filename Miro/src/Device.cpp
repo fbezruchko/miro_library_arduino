@@ -8,18 +8,18 @@
 
 Device::~Device()
 {
-	if (this->pins[0]) free(this->pins[0]);
-	if (this->pins[1]) free(this->pins[1]);
+	if (this->_pins[0]) free(this->_pins[0]);
+	if (this->_pins[1]) free(this->_pins[1]);
 	Serial.println("Base device delete");
 }
 
-Device::Device(uint8_t* pin, uint8_t pin_count)
+Device::Device(uint8_t* pins, uint8_t pins_count)
 {
-	this->pins[NUM] = (uint8_t*)malloc(pin_count);
-	this->pins[TYPE] = (uint8_t*)malloc(pin_count);
-	for (uint8_t i = 0; i < pin_count; i++)
+	this->_pins[NUM] = (uint8_t*)malloc(pins_count);
+	this->_pins[TYPE] = (uint8_t*)malloc(pins_count);
+	for (uint8_t i = 0; i < pins_count; i++)
 	{
-		this->pins[NUM][i] = pin[i];
+		this->_pins[NUM][i] = pins[i];
 	}
 	return;
 }
@@ -52,4 +52,14 @@ char* Device::getName()
 uint8_t Device::getParamCount()
 {
 	return 0;
+}
+
+uint8_t Device::getPinNum(uint8_t pin_num)
+{
+	return this->_pins[NUM][pin_num];
+}
+
+uint8_t Device::getPinType(uint8_t pin_num)
+{
+	return this->_pins[TYPE][pin_num];
 }

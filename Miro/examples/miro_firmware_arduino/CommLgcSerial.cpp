@@ -77,9 +77,6 @@ void println_P(const char* P_string)
 void CommLgcSerial::begin()
 {
   Serial.begin(9600);
-  //uint8_t pin = 13;
-  //Device* d = DEVICE_FABRIC[0](&pin, 1);
-  //robot.attachDevice(d);
 }
 
 void CommLgcSerial::handle()
@@ -273,7 +270,7 @@ int CommLgcSerial::miroget()
       return -1;
     }
     int dev_i = atoi(istr);
-    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount()-1))) 
+    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount() - 1)))
     {
       println_P(error_msgs[2]); //Serial.println(F("miroget -d: Wrong parameter value"));
       return -1;
@@ -429,7 +426,7 @@ int CommLgcSerial::miroset()
       return -1;
     }
     int dev_i = atoi(istr);
-    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount()-1))) 
+    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount() - 1)))
     {
       println_P(error_msgs[2]); //Serial.println(F("miroset -d: Wrong parameter value"));
       return -1;
@@ -477,6 +474,14 @@ int CommLgcSerial::mirodevtable()
     Serial.print(i);
     Serial.print(F(" - "));
     Serial.print(robot.getDeviceByIndex(i)->getName());
+    Serial.print(F(" : "));
+    for (int j = 0; j < robot.getDeviceByIndex(i)->getPinsCount(); j++)
+    {
+      Serial.print(robot.getDeviceByIndex(i)->getPinNum(j));
+      Serial.print(F("("));
+      Serial.print(robot.getDeviceByIndex(i)->getPinType(j));
+      Serial.print(F("), "));
+    }
     Serial.println();
   }
   return 0;
@@ -553,7 +558,7 @@ int CommLgcSerial::miroattach()
     if (!strcmp(istr, DEVICE_TYPES_NAMES[i]))
     {
       id = i;
-      pins_count = DEVICE_TYPES_PINS[i];
+      pins_count = DEVICE_PINS_COUNT[i];
       break;
     }
   }
@@ -586,7 +591,12 @@ int CommLgcSerial::miroattach()
     }
   }
 
-  Device* d = DEVICE_FABRIC[id](pins, pins_count);
+  Device* d;
+  if (default_pins)
+    d = DEVICE_FABRIC_DEFAULT[id]();
+  else
+    d = DEVICE_FABRIC[id](pins);
+
   robot.attachDevice(d);
 
   return 0;
