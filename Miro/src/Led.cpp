@@ -52,7 +52,7 @@ Device* CreateLED(uint8_t* pins)
 
 Device* CreateLED()
 {
-	Device* d = new Led(default_pins);
+	Device* d = new Led((uint8_t*)default_pins);
 	return d;
 }
 
