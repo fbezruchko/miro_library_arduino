@@ -10,8 +10,9 @@
 //using namespace miro;
 
 Miro robot;
+MIRODevices devices;
 
-#define PROGMEM_CMD_NAMES 8
+#define PROGMEM_CMD_NAMES 10
 const char s_help[] PROGMEM = "help";
 const char s_miroget[] PROGMEM = "miroget";
 const char s_miroset[] PROGMEM = "miroset";
@@ -20,6 +21,8 @@ const char s_mirocalibwheel[] PROGMEM = "mirocalibwheel";
 const char s_mirowheeltable[] PROGMEM = "mirowheeltable";
 const char s_miroattach[] PROGMEM = "miroattach";
 const char s_mirodetach[] PROGMEM = "mirodetach";
+const char s_mirogetdevname[] PROGMEM = "mirogetdevname";
+const char s_mirogetdevix[] PROGMEM = "mirogetdevix";
 
 const char * const cmd_names[PROGMEM_CMD_NAMES] PROGMEM =
 {
@@ -30,7 +33,9 @@ const char * const cmd_names[PROGMEM_CMD_NAMES] PROGMEM =
   s_mirocalibwheel,
   s_mirowheeltable,
   s_miroattach,
-  s_mirodetach
+  s_mirodetach,
+  s_mirogetdevname,
+  s_mirogetdevix
 };
 
 #define CMD_HELP 0
@@ -41,6 +46,8 @@ const char * const cmd_names[PROGMEM_CMD_NAMES] PROGMEM =
 #define CMD_MIROWHEELTABLE 5
 #define CMD_MIROATTACH 6
 #define CMD_MIRODETACH 7
+#define CMD_MIROGETDEVNAME 8
+#define CMD_MIROGETDEVIX 9
 
 //=======================================
 
@@ -144,6 +151,8 @@ int CommLgcSerial::parse(char *str)
     else if (!strcmp_P(istr, cmd_names[5])) mirowheeltable();
     else if (!strcmp_P(istr, cmd_names[6])) miroattach();
     else if (!strcmp_P(istr, cmd_names[7])) mirodetach();
+    else if (!strcmp_P(istr, cmd_names[8])) mirogetdevname();
+    else if (!strcmp_P(istr, cmd_names[9])) mirogetdevix();
     else
     {
       Serial.print(istr);
@@ -185,6 +194,8 @@ int CommLgcSerial::help()
   println_P(cmd_names[5]);
   println_P(cmd_names[6]);
   println_P(cmd_names[7]);
+  println_P(cmd_names[8]);
+  println_P(cmd_names[9]);
   return 0;
 }
 
@@ -273,7 +284,7 @@ int CommLgcSerial::miroget()
       return -1;
     }
     int dev_i = atoi(istr);
-    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount()-1))) 
+    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount() - 1)))
     {
       println_P(error_msgs[2]); //Serial.println(F("miroget -d: Wrong parameter value"));
       return -1;
@@ -429,7 +440,7 @@ int CommLgcSerial::miroset()
       return -1;
     }
     int dev_i = atoi(istr);
-    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount()-1))) 
+    if ((dev_i < 0) || (dev_i > (robot.getDeviceCount() - 1)))
     {
       println_P(error_msgs[2]); //Serial.println(F("miroset -d: Wrong parameter value"));
       return -1;
@@ -472,11 +483,21 @@ int CommLgcSerial::miroset()
 
 int CommLgcSerial::mirodevtable()
 {
+  Device *d;
   for (int i = 0; i < robot.getDeviceCount(); i++)
   {
+    d = robot.getDeviceByIndex(i);
     Serial.print(i);
     Serial.print(F(" - "));
-    Serial.print(robot.getDeviceByIndex(i)->getName());
+    Serial.print(d->getName());
+    Serial.print(F(" - "));
+    for (uint8_t j = 0; j < d->getPinsCount(); j++)
+    {
+      Serial.print(d->getPinNum(j));
+      Serial.print('(');
+      Serial.print(d->getPinType(j));
+      Serial.print(F("), "));
+    }
     Serial.println();
   }
   return 0;
@@ -548,21 +569,13 @@ int CommLgcSerial::miroattach()
 
   //==============================================================
 
-  for (int i = 0; i < NULLDEVICE; i++)
-  {
-    if (!strcmp(istr, DEVICE_TYPES_NAMES[i]))
-    {
-      id = i;
-      pins_count = DEVICE_TYPES_PINS[i];
-      break;
-    }
-  }
-  if (id < 0)
-  {
-    println_P(error_msgs[1]); //Serial.println(F("Unknown parameter"));
-    return -1;
-  }
-
+  id = devices.getDeviceId(istr);
+  //  if (id < 0)
+  //  {
+  //    println_P(error_msgs[1]); //Serial.println(F("Unknown parameter"));
+  //    return -1;
+  //  }
+  pins_count = devices.getDevicePinsCount(id);
   uint8_t pins[pins_count];
   istr = strtok(NULL, " ");
   if (istr == NULL) {
@@ -586,7 +599,12 @@ int CommLgcSerial::miroattach()
     }
   }
 
-  Device* d = DEVICE_FABRIC[id](pins, pins_count);
+  Device* d;
+  if (default_pins)
+    d = devices.CreateDevice(id);
+  else
+    d = devices.CreateDevice(id, pins);
+
   robot.attachDevice(d);
 
   return 0;
@@ -618,9 +636,57 @@ int CommLgcSerial::mirodetach()
   }
 
   Device* d = robot.getDeviceByIndex(dev_i);
-  uint8_t id = getDeviceIdByName(d->getName());
   robot.dettachDevice(dev_i);
-  DEVICE_DESTROYER[id](d);
+  devices.DestroyDevice(d);
+
+  return 0;
+}
+
+
+int CommLgcSerial::mirogetdevname()
+{
+  char *istr;
+  istr = strtok(NULL, " ");
+  if (istr == NULL) {
+    println_P(error_msgs[0]); //Serial.println(F("No parameters"));
+    return -1;
+  }
+
+  int dev_i = atoi(istr);
+  if (((dev_i == 0) && (strcmp(istr, "0"))) || (dev_i > (robot.getDeviceCount() - 1)) || (dev_i < 0))
+  {
+    println_P(error_msgs[2]); //Serial.println(F("Wrong parameter value"));
+    return -1;
+  }
+
+  Device* d = robot.getDeviceByIndex(dev_i);
+  Serial.println(d->getName());
+
+  return 0;
+}
+
+int CommLgcSerial::mirogetdevix()
+{
+  char *istr;
+  istr = strtok(NULL, " ");
+  if (istr == NULL) {
+    println_P(error_msgs[0]); //Serial.println(F("No parameters"));
+    return -1;
+  }
+
+  uint8_t i;
+  for (i = 0; i < robot.getDeviceCount(); i++)
+  {
+    if (!strcmp(istr, (robot.getDeviceByIndex(i))->getName())) break;
+  }
+
+  if ((i + 1) > robot.getDeviceCount())
+  {
+    println_P(error_msgs[2]); //Serial.println(F("Wrong parameter value"));
+    return -1;
+  }
+
+  Serial.println(i);
 
   return 0;
 }

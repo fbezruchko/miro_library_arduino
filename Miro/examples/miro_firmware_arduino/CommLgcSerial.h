@@ -20,6 +20,8 @@ class CommLgcSerial {
     int mirowheeltable();
     int miroattach();
     int mirodetach();
+    int mirogetdevname();
+    int mirogetdevix();
 
     void printWheelTable();
 };
