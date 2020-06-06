@@ -4,19 +4,20 @@
 #include "Led.h"
 
 //namespace miro {
-	
-Device* CreateNULLDEVICE(uint8_t* pins)
+
+Device *createNULLDEVICE(uint8_t *pins)
 {
   return nullptr;
 }
 
-void DestroyNULLDEVICE(Device* device)
+void destroyNULLDEVICE(Device *device)
 {
   return;
 }
 
 #define NAME_VALUE(NAME, PINS, VALUE) NAME = VALUE
-typedef enum {
+typedef enum
+{
 #include "device_types.h"
 } DEVICE_TYPES_ENUM;
 #undef NAME_VALUE
@@ -28,7 +29,7 @@ unsigned int DEVICE_TYPES_ID[] = {
 #undef NAME_VALUE
 
 #define NAME_VALUE(NAME, PINS, VALUE) #NAME
-const char* DEVICE_NAMES[] = {
+const char *DEVICE_NAMES[] = {
 #include "device_types.h"
 };
 #undef NAME_VALUE
@@ -39,20 +40,20 @@ const uint8_t DEVICE_PINS_COUNT[] = {
 };
 #undef NAME_VALUE
 
-#define NAME_VALUE(NAME, PINS, VALUE) &Create##NAME
-Device* (*DEVICE_CREATOR[NULLDEVICE+1])(uint8_t *) = {
+#define NAME_VALUE(NAME, PINS, VALUE) &create##NAME
+Device *(*DEVICE_CREATOR[NULLDEVICE + 1])(uint8_t *) = {
 #include "device_types.h"
 };
 #undef NAME_VALUE
 
-#define NAME_VALUE(NAME, PINS, VALUE) &Create##NAME
-Device* (*DEVICE_CREATOR_DEFAULT[NULLDEVICE+1])() = {
+#define NAME_VALUE(NAME, PINS, VALUE) &create##NAME
+Device *(*DEVICE_CREATOR_DEFAULT[NULLDEVICE + 1])() = {
 #include "device_types.h"
 };
 #undef NAME_VALUE
 
-#define NAME_VALUE(NAME, PINS, VALUE) &Destroy##NAME
-void (*DEVICE_DESTROYER[NULLDEVICE+1])(Device *) = {
+#define NAME_VALUE(NAME, PINS, VALUE) &destroy##NAME
+void (*DEVICE_DESTROYER[NULLDEVICE + 1])(Device *) = {
 #include "device_types.h"
 };
 #undef NAME_VALUE

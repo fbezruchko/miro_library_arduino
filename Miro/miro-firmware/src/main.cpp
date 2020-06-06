@@ -1,13 +1,14 @@
+#include <Arduino.h>
 #include "CommLgcSerial.h"
-
-//using namespace miro;
 
 CommLgcSerial parser;
 
-void setup() {
+void setup()
+{
   parser.begin();
 }
 
-void loop() {
+void loop()
+{
   parser.handle();
 }

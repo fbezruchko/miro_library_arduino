@@ -4,39 +4,36 @@
 
 #include "CommLgcSerial.h"
 
-#include <MIRODevices.h>
-#include <Miro.h>
-
-//using namespace miro;
+#include "MiroDevices.h"
+#include "Miro.h"
 
 Miro robot;
-MIRODevices devices;
+MiroDevices devices;
 
 #define PROGMEM_CMD_NAMES 10
 const char s_help[] PROGMEM = "help";
-const char s_miroget[] PROGMEM = "miroget";
-const char s_miroset[] PROGMEM = "miroset";
-const char s_mirodevtable[] PROGMEM = "mirodevtable";
-const char s_mirocalibwheel[] PROGMEM = "mirocalibwheel";
-const char s_mirowheeltable[] PROGMEM = "mirowheeltable";
-const char s_miroattach[] PROGMEM = "miroattach";
-const char s_mirodetach[] PROGMEM = "mirodetach";
-const char s_mirogetdevname[] PROGMEM = "mirogetdevname";
-const char s_mirogetdevix[] PROGMEM = "mirogetdevix";
+const char s_miroGet[] PROGMEM = "miroget";
+const char s_miroSet[] PROGMEM = "miroset";
+const char s_miroDevTable[] PROGMEM = "mirodevtable";
+const char s_miroCalibWheel[] PROGMEM = "mirocalibwheel";
+const char s_miroWheelTable[] PROGMEM = "mirowheeltable";
+const char s_miroAttach[] PROGMEM = "miroattach";
+const char s_miroDetach[] PROGMEM = "mirodetach";
+const char s_miroGetDevName[] PROGMEM = "mirogetdevname";
+const char s_miroGetDevIndex[] PROGMEM = "mirogetdevindex";
 
-const char * const cmd_names[PROGMEM_CMD_NAMES] PROGMEM =
-{
-  s_help,
-  s_miroget,
-  s_miroset,
-  s_mirodevtable,
-  s_mirocalibwheel,
-  s_mirowheeltable,
-  s_miroattach,
-  s_mirodetach,
-  s_mirogetdevname,
-  s_mirogetdevix
-};
+const char *const cmd_names[PROGMEM_CMD_NAMES] PROGMEM =
+    {
+        s_help,
+        s_miroGet,
+        s_miroSet,
+        s_miroDevTable,
+        s_miroCalibWheel,
+        s_miroWheelTable,
+        s_miroAttach,
+        s_miroDetach,
+        s_miroGetDevName,
+        s_miroGetDevIndex};
 
 #define CMD_HELP 0
 #define CMD_MIROGET 1
@@ -56,26 +53,25 @@ const char s_error0[] PROGMEM = "No parameters";
 const char s_error1[] PROGMEM = "Unknown parameter";
 const char s_error2[] PROGMEM = "Wrong parameter value";
 
-const char* const error_msgs[PROGMEM_ERROR_MSGS] PROGMEM =
-{
-  s_error0,
-  s_error1,
-  s_error2
-};
+const char *const error_msgs[PROGMEM_ERROR_MSGS] PROGMEM =
+    {
+        s_error0,
+        s_error1,
+        s_error2};
 
-char inputString[RXBUFFERSIZE];      // a String to hold incoming data
-bool stringComplete = false;  // whether the string is complete
-uint8_t rx_buffer_pos = 0;
+char inputString[RXBUFFERSIZE]; // a String to hold incoming data
+bool stringComplete = false;    // whether the string is complete
+uint8_t rxBufferPos = 0;
 
 char outputString[TXBUFFERSIZE];
 
-void print_P(const char* P_string)
+void print_P(const char *P_string)
 {
   strcpy_P(outputString, P_string);
   Serial.print(outputString);
 }
 
-void println_P(const char* P_string)
+void println_P(const char *P_string)
 {
   strcpy_P(outputString, P_string);
   Serial.println(outputString);
@@ -83,22 +79,20 @@ void println_P(const char* P_string)
 
 void CommLgcSerial::begin()
 {
-  Serial.begin(9600);
-  //uint8_t pin = 13;
-  //Device* d = DEVICE_FABRIC[0](&pin, 1);
-  //robot.attachDevice(d);
+  Serial.begin(115200);
 }
 
 void CommLgcSerial::handle()
 {
-  if (stringComplete) {
+  if (stringComplete)
+  {
     CommLgcSerial::parse(inputString);
     memset(inputString, 0, RXBUFFERSIZE);
     stringComplete = false;
-    rx_buffer_pos = 0;
+    rxBufferPos = 0;
   }
 
-  robot.Sync();
+  robot.sync();
 }
 
 int fullRAM()
@@ -123,14 +117,14 @@ int heapRAM()
 int stackRAM()
 {
   int v;
-  return (RAMEND + 1) - (int) &v;
+  return (RAMEND + 1) - (int)&v;
 }
 
 int freeRAM()
 {
   extern char __heap_start, *__brkval;
   int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
 int CommLgcSerial::parse(char *str)
@@ -143,16 +137,26 @@ int CommLgcSerial::parse(char *str)
 
     istr = strtok(str, " ");
 
-    if (!strcmp_P(istr, cmd_names[0])) help();
-    else if (!strcmp_P(istr, cmd_names[1])) miroget();
-    else if (!strcmp_P(istr, cmd_names[2])) miroset();
-    else if (!strcmp_P(istr, cmd_names[3])) mirodevtable();
-    else if (!strcmp_P(istr, cmd_names[4])) mirocalibwheel();
-    else if (!strcmp_P(istr, cmd_names[5])) mirowheeltable();
-    else if (!strcmp_P(istr, cmd_names[6])) miroattach();
-    else if (!strcmp_P(istr, cmd_names[7])) mirodetach();
-    else if (!strcmp_P(istr, cmd_names[8])) mirogetdevname();
-    else if (!strcmp_P(istr, cmd_names[9])) mirogetdevix();
+    if (!strcmp_P(istr, cmd_names[0]))
+      help();
+    else if (!strcmp_P(istr, cmd_names[1]))
+      miroGet();
+    else if (!strcmp_P(istr, cmd_names[2]))
+      miroSet();
+    else if (!strcmp_P(istr, cmd_names[3]))
+      miroDevTable();
+    else if (!strcmp_P(istr, cmd_names[4]))
+      miroCalibWheel();
+    else if (!strcmp_P(istr, cmd_names[5]))
+      miroWheelTable();
+    else if (!strcmp_P(istr, cmd_names[6]))
+      miroAttach();
+    else if (!strcmp_P(istr, cmd_names[7]))
+      miroDetach();
+    else if (!strcmp_P(istr, cmd_names[8]))
+      miroGetDevName();
+    else if (!strcmp_P(istr, cmd_names[9]))
+      miroGetDevIndex();
     else
     {
       Serial.print(istr);
@@ -166,14 +170,14 @@ int CommLgcSerial::parse(char *str)
 
   Serial.print(F("miro("));
   Serial.print(freeRAM());
-  Serial.print(F("/"));
-  Serial.print(dataRAM());
-  Serial.print(F("/"));
-  Serial.print(heapRAM());
-  Serial.print(F("/"));
-  Serial.print(stackRAM());
-  Serial.print(F("/"));
-  Serial.print(fullRAM());
+  //  Serial.print(F("/"));
+  //  Serial.print(dataRAM());
+  //  Serial.print(F("/"));
+  //  Serial.print(heapRAM());
+  //  Serial.print(F("/"));
+  //  Serial.print(stackRAM());
+  //  Serial.print(F("/"));
+  //  Serial.print(fullRAM());
   Serial.print(F(")#: "));
 
   return 0;
@@ -225,11 +229,12 @@ void CommLgcSerial::printWheelTable()
   return;
 }
 
-int CommLgcSerial::miroget()
+int CommLgcSerial::miroGet()
 {
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("miroget -d: No parameters"));
     return -1;
   }
@@ -279,7 +284,8 @@ int CommLgcSerial::miroget()
   if (!strcmp(istr, "-d"))
   {
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroget -d: No parameters"));
       return -1;
     }
@@ -294,12 +300,14 @@ int CommLgcSerial::miroget()
     //==============================================================
 
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroget -d: No parameters"));
       return -1;
     }
     int paramN = atoi(istr);
-    if (paramN <= 0 || paramN > count) {
+    if (paramN <= 0 || paramN > count)
+    {
       println_P(error_msgs[1]); //Serial.println(F("miroget -d: Unknown parameter"));
       return -1;
     }
@@ -319,11 +327,12 @@ int CommLgcSerial::miroget()
 /************************************************************************/
 /************************************************************************/
 
-int CommLgcSerial::miroset()
+int CommLgcSerial::miroSet()
 {
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("miroget -d: No parameters"));
     return -1;
   }
@@ -333,7 +342,8 @@ int CommLgcSerial::miroset()
   if (!strcmp(istr, "-r"))
   {
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroset -r: No parameters"));
       return -1;
     }
@@ -377,7 +387,8 @@ int CommLgcSerial::miroset()
   if (!strcmp(istr, "-m"))
   {
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroset -m: No parameters"));
       return -1;
     }
@@ -385,7 +396,8 @@ int CommLgcSerial::miroset()
     float linear_speed = atof(istr);
 
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroset -m: No parameters"));
       return -1;
     }
@@ -435,7 +447,8 @@ int CommLgcSerial::miroset()
   if (!strcmp(istr, "-d"))
   {
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroset -d: No parameters"));
       return -1;
     }
@@ -450,12 +463,14 @@ int CommLgcSerial::miroset()
     //==============================================================
 
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[0]); //Serial.println(F("miroset -d: No parameters"));
       return -1;
     }
     int paramN = atoi(istr);
-    if (paramN <= 0 || paramN > count) {
+    if (paramN <= 0 || paramN > count)
+    {
       println_P(error_msgs[1]); //Serial.println(F("miroset -d: Unknown parameter"));
       return -1;
     }
@@ -463,7 +478,8 @@ int CommLgcSerial::miroset()
     //==============================================================
 
     istr = strtok(NULL, " ");
-    if (istr == NULL) {
+    if (istr == NULL)
+    {
       println_P(error_msgs[2]); //Serial.println(F("miroset -d: Wrong parameter value"));
       return -1;
     }
@@ -481,7 +497,7 @@ int CommLgcSerial::miroset()
 /************************************************************************/
 /************************************************************************/
 
-int CommLgcSerial::mirodevtable()
+int CommLgcSerial::miroDevTable()
 {
   Device *d;
   for (int i = 0; i < robot.getDeviceCount(); i++)
@@ -503,17 +519,19 @@ int CommLgcSerial::mirodevtable()
   return 0;
 }
 
-int CommLgcSerial::mirocalibwheel()
+int CommLgcSerial::miroCalibWheel()
 {
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("mirocalibwheel: No parameters"));
     return -1;
   }
 
   int8_t wheel = atoi(istr);
-  if (wheel < 0 || wheel > robot.chassis.getWheelCount()) {
+  if (wheel < 0 || wheel > robot.chassis.getWheelCount())
+  {
     println_P(error_msgs[2]); //Serial.println(F("mirocalibwheel: Wrong parameter value"));
     return -1;
   }
@@ -522,7 +540,7 @@ int CommLgcSerial::mirocalibwheel()
   return 0;
 }
 
-int CommLgcSerial::mirowheeltable()
+int CommLgcSerial::miroWheelTable()
 {
   this->printWheelTable();
   return 0;
@@ -533,19 +551,23 @@ int CommLgcSerial::mirowheeltable()
   routine is run between each time loop() runs, so using delay inside loop can
   delay response. Multiple uint8_ts of data may be available.
 */
-void serialEvent() {
-  while (Serial.available()) {
+void serialEvent()
+{
+  while (Serial.available())
+  {
     // get the new uint8_t:
     char inChar = (char)Serial.read();
     // add it to the inputString:
-    inputString[rx_buffer_pos] = inChar;
-    rx_buffer_pos++;
+    inputString[rxBufferPos] = inChar;
+    rxBufferPos++;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
-    if (inChar == '\n') {
+    if (inChar == '\n')
+    {
       stringComplete = true;
-      inputString[rx_buffer_pos - 1] = 0;
-      if (inputString[rx_buffer_pos - 2] == '\r') inputString[rx_buffer_pos - 2] = 0;
+      inputString[rxBufferPos - 1] = 0;
+      if (inputString[rxBufferPos - 2] == '\r')
+        inputString[rxBufferPos - 2] = 0;
     }
   }
 }
@@ -554,7 +576,7 @@ void serialEvent() {
 /************************************************************************/
 /************************************************************************/
 
-int CommLgcSerial::miroattach()
+int CommLgcSerial::miroAttach()
 {
   int id = -1;
   uint8_t pins_count;
@@ -562,7 +584,8 @@ int CommLgcSerial::miroattach()
 
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("No parameters"));
     return -1;
   }
@@ -578,7 +601,8 @@ int CommLgcSerial::miroattach()
   pins_count = devices.getDevicePinsCount(id);
   uint8_t pins[pins_count];
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     default_pins = true;
   }
   else
@@ -592,31 +616,33 @@ int CommLgcSerial::miroattach()
         return -1;
       }
       istr = strtok(NULL, " ");
-      if ((istr == NULL) && ((pins_count - i) > 1)) {
+      if ((istr == NULL) && ((pins_count - i) > 1))
+      {
         println_P(error_msgs[0]); //Serial.println(F("No parameters"));
         return -1;
       }
     }
   }
 
-  Device* d;
+  Device *d;
   if (default_pins)
-    d = devices.CreateDevice(id);
+    d = devices.createDevice(id);
   else
-    d = devices.CreateDevice(id, pins);
+    d = devices.createDevice(id, pins);
 
   robot.attachDevice(d);
 
   return 0;
 }
 
-int CommLgcSerial::mirodetach()
+int CommLgcSerial::miroDetach()
 {
   int dev_i;
 
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("No parameters"));
     return -1;
   }
@@ -635,19 +661,19 @@ int CommLgcSerial::mirodetach()
     return -1;
   }
 
-  Device* d = robot.getDeviceByIndex(dev_i);
+  Device *d = robot.getDeviceByIndex(dev_i);
   robot.dettachDevice(dev_i);
-  devices.DestroyDevice(d);
+  devices.destroyDevice(d);
 
   return 0;
 }
 
-
-int CommLgcSerial::mirogetdevname()
+int CommLgcSerial::miroGetDevName()
 {
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("No parameters"));
     return -1;
   }
@@ -659,28 +685,40 @@ int CommLgcSerial::mirogetdevname()
     return -1;
   }
 
-  Device* d = robot.getDeviceByIndex(dev_i);
+  Device *d = robot.getDeviceByIndex(dev_i);
   Serial.println(d->getName());
 
   return 0;
 }
 
-int CommLgcSerial::mirogetdevix()
+int getDevIndex(char *devName)
+{
+  uint8_t i;
+  for (i = 0; i < robot.getDeviceCount(); i++)
+  {
+    if (!strcmp(devName, (robot.getDeviceByIndex(i))->getName()))
+      break;
+  }
+  if ((i + 1) > robot.getDeviceCount())
+  {
+    return -1;
+  }
+
+  return i;
+}
+
+int CommLgcSerial::miroGetDevIndex()
 {
   char *istr;
   istr = strtok(NULL, " ");
-  if (istr == NULL) {
+  if (istr == NULL)
+  {
     println_P(error_msgs[0]); //Serial.println(F("No parameters"));
     return -1;
   }
 
-  uint8_t i;
-  for (i = 0; i < robot.getDeviceCount(); i++)
-  {
-    if (!strcmp(istr, (robot.getDeviceByIndex(i))->getName())) break;
-  }
-
-  if ((i + 1) > robot.getDeviceCount())
+  uint8_t i = getDevIndex(istr);
+  if (i < 0)
   {
     println_P(error_msgs[2]); //Serial.println(F("Wrong parameter value"));
     return -1;

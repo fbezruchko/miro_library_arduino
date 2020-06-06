@@ -14,7 +14,7 @@
 const char _const_dev_name[] = "LED";
 const uint8_t default_pins[] = {13};
 
-Led::Led(uint8_t* pins, uint8_t pins_count = LED_PINS_COUNT) : Device(pins, pins_count)
+Led::Led(uint8_t *pins, uint8_t pins_count = LED_PINS_COUNT) : Device(pins, pins_count)
 {
 	this->_pins[TYPE][0] = OUTPUT;
 	pinMode(this->_pins[NUM][0], OUTPUT);
@@ -23,41 +23,49 @@ Led::Led(uint8_t* pins, uint8_t pins_count = LED_PINS_COUNT) : Device(pins, pins
 
 Led::~Led()
 {
-	Serial.println("LED device delete");
+	//Serial.println("LED device delete");
 }
 
 uint8_t Led::getPinsCount() { return LED_PINS_COUNT; };
-char* Led::getName() { return (char*)_const_dev_name; }
+char *Led::getName() { return (char *)_const_dev_name; }
 uint8_t Led::getParamCount() { return LED_PCOUNT; }
 
 void Led::setParam(uint8_t pnum, uint8_t *pvalue)
 {
-    if (pnum == LED_VALUE)
+	if (pnum == LED_VALUE)
 	{
 		analogWrite(this->_pins[NUM][0], *pvalue);
 		this->_value = *pvalue;
 	}
 }
 
-void Led::getParam(uint8_t pnum, uint8_t *pvalue)
+uint8_t *Led::getParam(uint8_t pnum, uint8_t *pvalue)
 {
-    if (pnum == LED_VALUE)  *pvalue = this->_value;
+	if (pnum == LED_VALUE)
+	{
+		*pvalue = this->_value;
+		return pvalue;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
-Device* CreateLED(uint8_t* pins)
+Device *createLED(uint8_t *pins)
 {
-	Device* d = new Led(pins);
+	Device *d = new Led(pins);
 	return d;
 }
 
-Device* CreateLED()
+Device *createLED()
 {
-	Device* d = new Led((uint8_t*)default_pins);
+	Device *d = new Led((uint8_t *)default_pins);
 	return d;
 }
 
-void DestroyLED(Device* device)
+void destroyLED(Device *device)
 {
-	delete((Led*)device);
+	delete ((Led *)device);
 	return;
 }

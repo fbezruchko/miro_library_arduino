@@ -22,15 +22,15 @@ public:
 	
 	Chassis chassis;
 	
-	void Sync();
+	void sync();
 
 	/*connect device to robot*/
 	int attachDevice(Device *dev);
 
 	int dettachDevice(Device *dev);
-	int dettachDevice(uint8_t DeviceIndex);
+	int dettachDevice(uint8_t deviceIndex);
 
-    Device* getDeviceByIndex(uint8_t DeviceIndex);
+    Device* getDeviceByIndex(uint8_t deviceIndex);
     uint8_t getDeviceCount();
 	
 protected:
