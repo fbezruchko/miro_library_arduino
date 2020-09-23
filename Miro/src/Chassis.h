@@ -43,6 +43,7 @@ public:
 	//===================================================
 	//===================================================
 #if defined(ENCODERS_ON)
+#if defined(CHASSIS_CALIBRATION_ON)
 	/*
 	Calibration of motors. The calibration process determines the maximum and minimum motor speeds and break delays.
 	During calibration, a table of the form "<wheel angular speed> - <motor voltage> - <break delay>" is entered into the EEPROM memory.
@@ -52,6 +53,7 @@ public:
 	depending on the required angular speed of the wheel.
 	*/
 	void wheelCalibrate(int8_t wheel);
+#endif
 
 	int getWheelTableValue(int8_t wheel, int8_t parameter, int8_t record);
 

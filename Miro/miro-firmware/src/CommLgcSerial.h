@@ -15,18 +15,15 @@ public:
 private:
   int parse(char *str);
 
-  int help();
-  int miroGet();
-  int miroSet();
-  int miroDevTable();
-  int miroCalibWheel();
-  int miroWheelTable();
-  int miroAttach();
-  int miroDetach();
-  int miroGetDevName();
-  int miroGetDevIndex();
-
-  void printWheelTable();
+  void help();
+  int get();
+  int set();
+  void devTable();
+  int calibWheel();
+  void wheelTable();
+  int attach();
+  int detach();
+  void devIDs();
 };
 
 #endif

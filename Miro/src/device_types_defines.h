@@ -2,8 +2,11 @@
 #define device_types_h
 
 #include "Led.h"
-
-//namespace miro {
+#include "Buzzer.h"
+#include "Ldr.h"
+#include "Line.h"
+#include "Servo0.h"
+#include "Hcsr04.h"
 
 Device *createNULLDEVICE(uint8_t *pins)
 {
@@ -15,6 +18,15 @@ void destroyNULLDEVICE(Device *device)
   return;
 }
 
+uint8_t getDefaultPinNULLDEVICE(uint8_t pinIndex)
+{
+  return 0;
+}
+char *getPinNameNULLDEVICE(uint8_t pinIndex)
+{
+  return 0;
+}
+
 #define NAME_VALUE(NAME, PINS, VALUE) NAME = VALUE
 typedef enum
 {
@@ -22,11 +34,11 @@ typedef enum
 } DEVICE_TYPES_ENUM;
 #undef NAME_VALUE
 
-#define NAME_VALUE(NAME, PINS, VALUE) NAME
-unsigned int DEVICE_TYPES_ID[] = {
-#include "device_types.h"
-};
-#undef NAME_VALUE
+// #define NAME_VALUE(NAME, PINS, VALUE) NAME
+// uint8_t DEVICE_TYPES_ID[] = {
+// #include "device_types.h"
+// };
+// #undef NAME_VALUE
 
 #define NAME_VALUE(NAME, PINS, VALUE) #NAME
 const char *DEVICE_NAMES[] = {
@@ -58,6 +70,16 @@ void (*DEVICE_DESTROYER[NULLDEVICE + 1])(Device *) = {
 };
 #undef NAME_VALUE
 
-//} // end namespace
+#define NAME_VALUE(NAME, PINS, VALUE) &getDefaultPin##NAME
+uint8_t (*DEVICE_GET_PIN[NULLDEVICE + 1])(uint8_t) = {
+#include "device_types.h"
+};
+#undef NAME_VALUE
+
+#define NAME_VALUE(NAME, PINS, VALUE) &getPinName##NAME
+const char *(*DEVICE_GET_PIN_NAME[NULLDEVICE + 1])(uint8_t) = {
+#include "device_types.h"
+};
+#undef NAME_VALUE
 
 #endif

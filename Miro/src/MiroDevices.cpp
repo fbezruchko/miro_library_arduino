@@ -15,11 +15,11 @@ Device *MiroDevices::createDevice(uint8_t id)
 
 void MiroDevices::destroyDevice(Device *device)
 {
-	uint8_t id = this->getDeviceId(device->getName());
+	uint8_t id = this->getDeviceID((const char *)device->getParam(0));
 	DEVICE_DESTROYER[id](device);
 }
 
-uint8_t MiroDevices::getDeviceId(char *name)
+uint8_t MiroDevices::getDeviceID(const char *name)
 {
 	uint8_t id;
 
@@ -36,7 +36,22 @@ uint8_t MiroDevices::getDevicePinsCount(uint8_t id)
 	return DEVICE_PINS_COUNT[id];
 }
 
+uint8_t MiroDevices::getDeviceDefaultPin(uint8_t id, uint8_t pinIndex)
+{
+	return DEVICE_GET_PIN[id](pinIndex);
+}
+
+const char *MiroDevices::getDevicePinName(uint8_t id, uint8_t pinIndex)
+{
+	return DEVICE_GET_PIN_NAME[id](pinIndex);
+}
+
 const char *MiroDevices::getDeviceName(uint8_t id)
 {
 	return DEVICE_NAMES[id];
+}
+
+uint8_t MiroDevices::getDeviceIDsCount()
+{
+	return MiroDevices::getDeviceID("NULLDEVICE");
 }

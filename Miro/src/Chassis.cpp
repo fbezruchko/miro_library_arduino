@@ -237,7 +237,7 @@ int Chassis::wheelRotatePWM(int *speedPWM)
 
 #if defined(ENCODERS_ON)
 //========================================== wheelCalibrate
-
+#if defined(CHASSIS_CALIBRATION_ON)
 void Chassis::wheelCalibrate(int8_t wheel)
 {
 	unsigned long wheelTime = 0;
@@ -402,6 +402,7 @@ void Chassis::wheelCalibrate(int8_t wheel)
 
 	return;
 }
+#endif
 
 //========================================== getWheelTableValue
 

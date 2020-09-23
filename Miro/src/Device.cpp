@@ -36,9 +36,14 @@ void Device::setParam(uint8_t pnum, uint8_t *pvalue)
 	return;
 }
 
-uint8_t *Device::getParam(uint8_t pnum, uint8_t *pvalue)
+uint8_t *Device::getParam(uint8_t pnum)
 {
 	return nullptr;
+}
+
+uint8_t Device::getParamType(uint8_t pnum)
+{
+	return 0;
 }
 
 uint8_t Device::getPinsCount()
@@ -46,10 +51,10 @@ uint8_t Device::getPinsCount()
 	return 0;
 }
 
-char *Device::getName()
-{
-	return 0;
-}
+// char *Device::getName()
+// {
+// 	return 0;
+// }
 
 uint8_t Device::getParamCount()
 {

@@ -5,10 +5,10 @@ CommLgcSerial parser;
 
 void setup()
 {
-  parser.begin();
+    parser.begin();
 }
 
 void loop()
 {
-  parser.handle();
+    parser.handle();
 }
