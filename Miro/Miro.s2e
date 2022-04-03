@@ -1,0 +1,183 @@
+{	"extensionName": "Miro",
+	"description": "An Extension for MIRO Robot",
+	"version": "1.0",
+	"author": "Artem Vysotskiy, Fedor Bezruchko",
+	"homepage": "http://mirorobot.ru",
+	"sort":0,
+	"javascriptURL":"js/Miro.js",
+	"firmware":"1.0",
+	"extensionPort":0,
+	"blockSpecs": [
+		["h","MIRO Program","runArduino",
+			{
+				"setup":"",
+				"inc":"#include <MIRODevices.h>\n#include <Miro.h>\n",
+				"def":"MIRODevices devices;\nMiro robot;\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		
+		[
+			"w",
+			"Attach device %s",
+			"attachDevice",
+			"LED",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"robot.attachDevice(devices.CreateDevice(devices.getDeviceId({0})));\n",
+				"loop":""
+			}
+		],
+		
+		[
+			"w",
+			"Detach device %n",
+			"detachDevice",
+			"0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"#ifndef __DETACHDEV\n  #define __DETACHDEV\n  Device *__detachDev;\n#endif\n",
+				"work":"__detachDev = robot.getDeviceByIndex({0});\nrobot.dettachDevice({0});\ndevices.DestroyDevice(__detachDev);\n",
+				"loop":""
+			}
+		],
+
+		[
+			"R",
+			"Get device index %s)",
+			"getDeviceIndex",
+			"LED",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"getDevIndex({0})",
+				"loop":""
+			}
+		],
+
+		[
+			"R",
+			"Get device name %n",
+			"getDeviceName",
+			"0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"(robot.getDeviceByIndex({0}))->getName()",
+				"loop":""
+			}
+		],
+
+		[
+			"w",
+			"Set %n for parameter %n of device %n",
+			"setParameterOfDevice",
+			"0","1","0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"uint8_t __setValueN = {0};\nrobot.getDeviceByIndex({2})->setParam({1}, &__setValueN);\n",
+				"loop":""
+			}
+		],
+
+		[
+			"R",
+			"Get value of parameter %n of device %n",
+			"getParameterOfDevice",
+			"1",
+			"0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"#ifndef __GETVALUEN\n  #define __GETVALUEN\n  uint32_t __getValueN = 0;\n\#endif\n",
+				"work":"*(robot.getDeviceByIndex({1})->getParam({0}, &((char*)__getValueN)))",
+				"loop":""
+			}
+		],
+
+		[
+			"w",
+			"Move with linear speed %n and angular speed %n",
+			"moveLinearAngularSpeed",
+			"0","0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"robot.move({0}, {1});\n",
+				"loop":""
+			}
+		],
+
+		[
+			"w",
+			"Move with linear speed %n and angular speed %n at distance %n",
+			"moveLinearAngularSpeedDistance",
+			"0","0","0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"robot.moveDist({0}, {1}, {2}, true);\n",
+				"loop":""
+			}
+		],
+
+		[
+			"w",
+			"Rotate with angular speed %n",
+			"rotateAngularSpeed",
+			"0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"robot.rotate({0});\n",
+				"loop":""
+			}
+		],
+
+		[
+			"w",
+			"Rotate with angular speed %n at angle %n",
+			"rotateAngularSpeedAngle",
+			"0","0",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"robot.rotateAng({0}, {1}, true);\n",
+				"loop":""
+			}
+		],
+
+		[
+			"R",
+			"Get free RAM",
+			"getFreeRam",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"freeRAM()",
+				"loop":""
+			}
+		],
+	],
+	"menus": {
+		"Options" : ["path","device data","firmware version", "linear speed", "angular speed", "angular speed in radians"]
+	},
+	"values":{
+		},
+	"translators":{
+	},
+
+}

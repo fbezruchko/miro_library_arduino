@@ -1,4 +1,5 @@
-#pragma once
+#ifndef miro_h
+#define miro_h
 
 #include "Chassis.h"
 #include "Device.h"
@@ -10,17 +11,20 @@
 
 #include <avr/pgmspace.h>
 
-namespace miro {
+//namespace miro {
 
-const char MIRO_VERSION[] = "v1.0.0";
+const char MIRO_VERSION[] = "1.0.0";
 
 class Miro : public Robot {
 public:
 
-	Miro(byte *PWM_pins, byte *DIR_pins);
+	Miro(uint8_t *PWM_pins, uint8_t *DIR_pins);
 #if defined(ENCODERS_ON)
-	Miro(byte *PWM_pins, byte *DIR_pins, byte *ENCODER_pins);
-#endif  // ENCODERS_ON
+	Miro();
+	Miro(uint8_t *PWM_pins, uint8_t *DIR_pins, uint8_t *ENCODER_pins);
+#else  // ENCODERS_ON
+	Miro();
+#endif
 	~Miro();
 	
 	/*robot movement with simple PWM control and time contraint.
@@ -88,4 +92,6 @@ public:
 #endif // ENCODERS_ON
 };
 
-} // end namespace
+//} // end namespace
+
+#endif
