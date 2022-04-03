@@ -317,7 +317,7 @@ int CommLgcSerial::get()
     uint8_t i;
     for (i = 0; i < robot.getDeviceCount(); i++)
     {
-      if (!strcmp(istr, (robot.getDeviceByIndex(i))->getParam(0)))
+      if (!strcmp(istr, (const char*)(robot.getDeviceByIndex(i))->getParam(0)))
         break;
     }
     if ((i + 1) > robot.getDeviceCount())
